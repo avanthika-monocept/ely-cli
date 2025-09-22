@@ -1,39 +1,123 @@
 {
-  "name": "AwesomeProject",
-  "version": "0.0.1",
-  "private": true,
+  "name": "elychatbot",
+  "version": "0.0.10",
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest"
+    "test": "jest --coverage",
+    "prepare": "husky install"
+  },
+  "description": "A React Native chatbot component library (bare workflow)",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./index.js",
+      "import": "./index.js",
+      "types": "./index.d.ts"
+    }
+  },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "App.js",
+    "src",
+    "assets",
+    "metro.config.js",
+    "babel.config.js",
+    "jest.config.js",
+    "jest.setup.js"
+  ],
+  "keywords": [
+    "react-native",
+    "chatbot",
+    "component",
+    "bare-workflow",
+    "mliely",
+    "mlielychatbot"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/mlielychatbot"
   },
   "dependencies": {
-    "react": "18.3.1",
-    "react-native": "0.76.9"
+    "@react-native-async-storage/async-storage": "^1.21.0",
+    "@react-native-camera-roll/camera-roll": "^6.2.5",
+    "@react-native-clipboard/clipboard": "^1.12.1",
+    "@react-native-community/netinfo": "^11.3.0",
+    "@react-native-masked-view/masked-view": "^0.3.1",
+    "@react-navigation/native": "^6.1.9",
+    "@react-navigation/stack": "^6.3.20",
+    "@reduxjs/toolkit": "^2.2.3",
+    "axios": "^1.6.8",
+    "buffer": "^6.0.3",
+    "crypto-js": "^4.2.0",
+    "date-fns": "^2.30.0",
+    "html-entities": "^2.6.0",
+    "markdown-it": "^14.1.0",
+    "prop-types": "^15.8.1",
+    "react": "18.2.0",
+    "react-native": "0.76.9",
+    "react-native-blob-util": "^0.22.2",
+    "react-native-file-viewer": "^2.1.5",
+    "react-native-fs": "^2.20.0",
+    "react-native-gesture-handler": "^2.12.0",
+    "react-native-image-zoom-viewer": "^3.0.1",
+    "react-native-linear-gradient": "^2.8.3",
+    "react-native-markdown-display": "^7.0.2",
+    "react-native-modal": "^13.0.1",
+    "react-native-paper": "^5.10.1",
+    "react-native-pdf": "^6.7.7",
+    "react-native-permissions": "^3.8.0",
+    "react-native-popover-view": "^5.1.0",
+    "react-native-reanimated": "^3.10.1",
+    "react-native-responsive-fontsize": "^0.5.1",
+    "react-native-safe-area-context": "^4.8.0",
+    "react-native-screens": "^3.28.0",
+    "react-native-share": "^8.1.0",
+    "react-native-size-matters": "^0.4.2",
+    "react-native-svg": "^13.9.0",
+    "react-native-uuid": "^2.0.3",
+    "react-native-vector-icons": "^10.3.0",
+    "react-native-video": "^6.0.0-alpha.1",
+    "react-native-view-shot": "^3.5.0",
+    "react-native-webview": "^13.4.3",
+    "react-redux": "^9.1.1",
+    "redux-persist": "^6.0.0",
+    "remove-markdown": "^0.6.2",
+    "socket.io-client": "^4.5.4"
   },
   "devDependencies": {
-    "@babel/core": "^7.25.2",
-    "@babel/preset-env": "^7.25.3",
-    "@babel/runtime": "^7.25.0",
-    "@react-native-community/cli": "15.0.1",
-    "@react-native-community/cli-platform-android": "15.0.1",
-    "@react-native-community/cli-platform-ios": "15.0.1",
-    "@react-native/babel-preset": "0.76.9",
-    "@react-native/eslint-config": "0.76.9",
-    "@react-native/metro-config": "0.76.9",
-    "@react-native/typescript-config": "0.76.9",
-    "@types/react": "^18.2.6",
+    "@babel/core": "^7.24.0",
+    "@babel/preset-env": "^7.24.0",
+    "@babel/runtime": "^7.24.0",
+    "@react-native/babel-preset": "^0.76.9",
+    "@react-native/eslint-config": "^0.76.9",
+    "@react-native/metro-config": "^0.76.9",
+    "@react-native/typescript-config": "^0.76.9",
+    "@types/jest": "^29.5.13",
+    "@types/react": "^18.2.46",
     "@types/react-test-renderer": "^18.0.0",
-    "babel-jest": "^29.6.3",
-    "eslint": "^8.19.0",
-    "jest": "^29.6.3",
+    "eslint": "^8.57.0",
+    "husky": "^9.1.7",
+    "jest": "^29.7.0",
+    "lint-staged": "^16.1.6",
     "prettier": "2.8.8",
-    "react-test-renderer": "18.3.1",
-    "typescript": "5.0.4"
+    "react-native-svg-transformer": "^1.4.0",
+    "react-test-renderer": "18.2.0",
+    "typescript": "^5.3.3"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "jest --bail --findRelatedTests"
+    ]
   }
 }
