@@ -1,16 +1,14 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { borderRadius, flex, size, spacing } from '../../constants/Dimensions';
-import colors from '../../constants/Colors';
-import { fontStyle } from '../../constants/Fonts';
-import PropTypes from 'prop-types';
-import ElyUpdatedLogo from '../../../assets/ElyUpdatedLogo.svg';
-
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
+import { borderRadius, flex, size, spacing } from "../../constants/Dimensions";
+import colors from "../../constants/Colors";
+import { fontStyle } from "../../constants/Fonts";
+import PropTypes from "prop-types";
+import ElyUpdatedLogo from "../../../assets/ElyUpdatedLogo.svg";
 const Avatar = ({ botName }) => {
   Avatar.propTypes = {
     botName: PropTypes.string,
   };
-
   const onlineStatus = true;
   return (
     <View style={styles.avatarContainer}>
@@ -38,26 +36,26 @@ const Avatar = ({ botName }) => {
 export default Avatar;
 const styles = StyleSheet.create({
   avatarContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 5,
   },
   avatarWrapper: {
-    position: 'relative',
+    position: "relative",
     width: size.width_30,
     height: size.height_30,
   },
   imageContainer: {
     flex: flex.one,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   avatarImage: {
     marginLeft: size.width_2,
-    alignSelf: 'center',
+    alignSelf: "center",
   },
   statusDot: {
-    position: 'absolute',
+    position: "absolute",
     top: spacing.space_s1,
     right: spacing.space_s1,
     width: size.width_8,

@@ -20,6 +20,7 @@ export const stringConstants = {
   hereToHelp: "I'm here to help!",
   copyClipboard: "Copied to Clipboard",
   user: "user",
+  userCaps: "USER",
   Today: "Today",
   Yesterday: "Yesterday",
   conversationClosed: "This conversation has been closed",
@@ -55,6 +56,7 @@ export const stringConstants = {
   dislike:"dislike",
   thumbsUpEmoji:"U+1F44D" ,
   thumbsDownEmoji:"U+1F44E",
+  showRecentConversations: "Show recent conversations",
  };
 
 
@@ -69,6 +71,7 @@ export const socketConstants = {
   acknowledgement: "ACKNOWLEDGEMENT",
   read: "READ",
   received: "RECEIVED",
+  delivered: "DELIVERED",
   reaction:"REACTION",
   selected:"SELECTED",
   deselected:"DESELECTED",

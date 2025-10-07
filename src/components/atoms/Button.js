@@ -1,17 +1,12 @@
-import React from 'react';
-import { TouchableOpacity, StyleSheet, View } from 'react-native';
-import PropTypes from 'prop-types';
-import SendButtonEnabled from '../../../assets/sendButtonEnabled.svg';
-import SendButtonDisabled from '../../../assets/sendButtonDisabled.svg';
-import {
-  spacing,
-  sizeWithoutScale,
-  borderRadius,
-} from '../../constants/Dimensions';
-import colors from '../../constants/Colors';
+import React from "react";
+import { TouchableOpacity, StyleSheet, View } from "react-native";
+import PropTypes from "prop-types";
+import SendButtonEnabled from "../../../assets/sendButtonEnabled.svg";
+import SendButtonDisabled from "../../../assets/sendButtonDisabled.svg";
+import { spacing, sizeWithoutScale, borderRadius } from "../../constants/Dimensions";
+import colors from "../../constants/Colors";
 const Button = ({ isEnabled, onClick, reconfigApiResponse }) => {
-  const buttonColor =
-    reconfigApiResponse?.theme?.buttonColor || colors.primaryColors.surface;
+  const buttonColor = reconfigApiResponse?.theme?.buttonColor || colors.primaryColors.surface;
   return (
     <TouchableOpacity
       onPress={onClick}
@@ -31,14 +26,14 @@ const SendButtonImage = ({ isEnabled, buttonColor }) => {
     padding: spacing.space_10,
     width: spacing.space_l2,
     height: spacing.space_l2,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingLeft: spacing.space_m1,
-  };
+};
   const iconProps = {
     width: sizeWithoutScale.width15,
     height: sizeWithoutScale.height15,
-    testID: 'send-icon',
+    testID: "send-icon",
   };
   return (
     <View style={containerStyle}>
@@ -66,7 +61,7 @@ Button.propTypes = {
 export default Button;
 const styles = StyleSheet.create({
   button: {
-    alignSelf: 'flex-end',
+    alignSelf: "flex-end",
     marginLeft: spacing.space_base,
   },
 });

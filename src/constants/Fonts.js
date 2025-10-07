@@ -1,28 +1,29 @@
-import { scale } from 'react-native-size-matters';
-import { StyleSheet, Dimensions } from 'react-native';
-import { RFValue } from 'react-native-responsive-fontsize';
+import { scale } from "react-native-size-matters";
+import { StyleSheet, Dimensions } from "react-native";
+import { RFValue } from "react-native-responsive-fontsize";
 
-const standardScreenHeight = Dimensions.get('window').height;
+
+const standardScreenHeight = Dimensions.get("window").height;
 export const fontType = {
-  notoBold: 'NotoSans-Bold',
-  notoExtraBoldItalic: 'NotoSans-ExtraBoldItalic',
-  notoExtraLight: 'NotoSans-ExtraLight',
-  notoExtraLightItalic: 'NotoSans-ExtraLightItalic',
-  notoItalic: 'NotoSans-Italic',
-  notoLight: 'NotoSans-Light',
-  notoLightItalic: 'NotoSans-LightItalic',
-  notoMedium: 'NotoSans-Medium',
-  notoMediumItalic: 'NotoSans-MediumItalic',
-  notoRegular: 'NotoSans-Regular',
-  notoSemiBold: 'NotoSans-SemiBold',
-  notoSemiBoldItalic: 'NotoSans-SemiBoldItalic',
-  notoThin: 'NotoSans-Thin',
-  notoThinItalic: 'NotoSans-ThinItalic',
+  notoBold: "NotoSans-Bold",
+  notoExtraBoldItalic: "NotoSans-ExtraBoldItalic",
+  notoExtraLight: "NotoSans-ExtraLight",
+  notoExtraLightItalic: "NotoSans-ExtraLightItalic",
+  notoItalic: "NotoSans-Italic",
+  notoLight: "NotoSans-Light",
+  notoLightItalic: "NotoSans-LightItalic",
+  notoMedium: "NotoSans-Medium",
+  notoMediumItalic: "NotoSans-MediumItalic",
+  notoRegular: "NotoSans-Regular",
+  notoSemiBold: "NotoSans-SemiBold",
+  notoSemiBoldItalic: "NotoSans-SemiBoldItalic",
+  notoThin: "NotoSans-Thin",
+  notoThinItalic: "NotoSans-ThinItalic",
   loto: 'Lato sans-serif',
   monospace: 'monospace',
-  Courier: 'Courier',
-  italic: 'italic',
-  roboto: 'roboto',
+  Courier:"Courier",
+  italic:"italic",
+  roboto:"roboto"
 };
 
 export const fontSize = {
@@ -46,13 +47,13 @@ export const fontSize = {
 };
 
 export const fontWeight = {
-  weight400: '400',
-  weight500: '500',
-  weight600: '600',
-  weight650: '650',
-  weight700: '700',
-  weight800: '800',
-  weight200: '200',
+  weight400: "400",
+  weight500: "500",
+  weight600: "600",
+  weight650: "650",
+  weight700: "700",
+  weight800: "800",
+  weight200: "200",
 };
 export const lineHeight = {
   lineHeight20: scale(20),
@@ -60,8 +61,7 @@ export const lineHeight = {
   lineHeight28: scale(28),
   lineHeight35: scale(35),
   lineHeight56: scale(56),
-  lineHeight86: scale(86),
-  lineNormal: 'normal',
+  lineNormal:'normal'
 };
 
 export const letterSpacing = {
@@ -85,20 +85,20 @@ export const fontStyle = StyleSheet.create({
   // font size 62
   displayLarge: {
     fontSize: fontSize.font62,
-    lineHeight: lineHeight.lineHeight86,
+    lineHeight: lineHeight.linHeight86,
     fontFamily: fontType.manrope,
     fontWeight: fontWeight.weight400,
     letterSpacing: letterSpacing.minus0217,
   },
   displayLargeMedium: {
     fontSize: fontSize.font62,
-    lineHeight: lineHeight.lineHeight86,
+    lineHeight: lineHeight.linHeight86,
     fontFamily: fontType.manropeMedium,
     letterSpacing: letterSpacing.minus0217,
   },
   displayLargeBold: {
     fontSize: fontSize.font62,
-    lineHeight: lineHeight.lineHeight86,
+    lineHeight: lineHeight.linHeight86,
     fontFamily: fontType.manropeBold,
     letterSpacing: letterSpacing.minus0217,
   },
@@ -171,21 +171,21 @@ export const fontStyle = StyleSheet.create({
     fontSize: fontSize.font32,
     lineHeight: lineHeight.lineHeight44,
     letterSpacing: letterSpacing.minus0112,
-    fontStyle: 'normal',
+    fontStyle: "normal",
   },
   bodyMediumMedium32: {
     fontFamily: fontType.manropeMedium,
     fontSize: fontSize.font32,
     lineHeight: lineHeight.lineHeight44,
     letterSpacing: letterSpacing.minus0112,
-    fontStyle: 'normal',
+    fontStyle: "normal",
   },
   bodyMediumBold32: {
     fontFamily: fontType.manropeBold,
     fontSize: fontSize.font32,
     lineHeight: lineHeight.lineHeight44,
     letterSpacing: letterSpacing.minus0112,
-    fontStyle: 'normal',
+    fontStyle: "normal",
   },
 
   // font size 25
@@ -195,7 +195,7 @@ export const fontStyle = StyleSheet.create({
     fontFamily: fontType.manrope,
     fontWeight: fontWeight.weight400,
     letterSpacing: letterSpacing.minus0087,
-    fontStyle: 'normal',
+    fontStyle: "normal",
   },
   h3OnboardingDescription: {
     fontSize: fontSize.font22,
@@ -203,7 +203,7 @@ export const fontStyle = StyleSheet.create({
     fontFamily: fontType.manrope,
     fontWeight: fontWeight.weight400,
     letterSpacing: letterSpacing.minus0087,
-    fontStyle: 'normal',
+    fontStyle: "normal",
   },
 
   h3Medium: {
@@ -245,7 +245,7 @@ export const fontStyle = StyleSheet.create({
     fontSize: fontSize.font20,
     lineHeight: lineHeight.lineHeight28,
     letterSpacing: letterSpacing.minus004,
-    fontStyle: 'normal',
+    fontStyle: "normal",
     fontWeight: fontWeight.weight700,
   },
 
@@ -262,7 +262,7 @@ export const fontStyle = StyleSheet.create({
     fontSize: fontSize.font16,
     fontStyle: 'normal',
     letterSpacing: letterSpacing.minus0056,
-    alignItems: 'center',
+    alignItems: "center",
     fontWeight: fontWeight.weight400,
     // borderWidth:1,
   },
@@ -276,7 +276,7 @@ export const fontStyle = StyleSheet.create({
     fontFamily: fontType.manrope,
     fontSize: fontSize.font18,
     fontWeight: fontWeight.weight700,
-    fontStyle: 'normal',
+    fontStyle:'normal',
     lineHeight: lineHeight.lineHeight22dot4,
     letterSpacing: letterSpacing.minus0035,
     margin: 0,
@@ -299,7 +299,7 @@ export const fontStyle = StyleSheet.create({
     lineHeight: lineHeight.lineHeight78dot4,
     letterSpacing: letterSpacing.minus0035,
     paddingLeft: 0,
-    color: '#FFF',
+    color: "#FFF",
   },
   bodyBold2: {
     fontFamily: fontType.manropeBold,
@@ -321,21 +321,21 @@ export const fontStyle = StyleSheet.create({
     fontSize: fontSize.font13,
     lineHeight: lineHeight.lineHeight18dot2,
     letterSpacing: letterSpacing.minus0045,
-    fontStyle: 'normal',
+    fontStyle: "normal",
   },
   bodyMediumMedium: {
     fontFamily: fontType.manropeMedium,
     fontSize: fontSize.font13,
     lineHeight: lineHeight.lineHeight18dot2,
     letterSpacing: letterSpacing.minus0045,
-    fontStyle: 'normal',
+    fontStyle: "normal",
   },
   bodyMediumBoldSuggeated: {
     fontFamily: fontType.manropeBold,
     fontSize: fontSize.font13,
     lineHeight: lineHeight.lineHeight18dot2,
     letterSpacing: letterSpacing.minus0045,
-    fontStyle: 'normal',
+    fontStyle: "normal",
     fontWeight: fontWeight.weight400,
   },
   bodyMediumBold: {
@@ -343,7 +343,7 @@ export const fontStyle = StyleSheet.create({
     fontSize: fontSize.font13,
     lineHeight: lineHeight.lineHeight18dot2,
     letterSpacing: letterSpacing.minus0045,
-    fontStyle: 'normal',
+    fontStyle: "normal",
     fontWeight: fontWeight.weight700,
   },
   bodyMediumBold800: {
@@ -351,7 +351,7 @@ export const fontStyle = StyleSheet.create({
     fontSize: fontSize.font13,
     lineHeight: lineHeight.lineHeight18dot2,
     letterSpacing: letterSpacing.minus0045,
-    fontStyle: 'normal',
+    fontStyle: "normal",
     fontWeight: fontWeight.weight800,
   },
 
@@ -362,21 +362,21 @@ export const fontStyle = StyleSheet.create({
     fontSize: fontSize.font12,
     lineHeight: lineHeight.lineHeight16dot8,
     letterSpacing: letterSpacing.minus0042,
-    fontStyle: 'normal',
+    fontStyle: "normal",
   },
   bodyMediumMedium12: {
     fontFamily: fontType.manropeMedium,
     fontSize: fontSize.font12,
     lineHeight: lineHeight.lineHeight16dot8,
     letterSpacing: letterSpacing.minus0042,
-    fontStyle: 'normal',
+    fontStyle: "normal",
   },
   bodyMediumBold12: {
     fontFamily: fontType.manropeBold,
     fontSize: fontSize.font12,
     lineHeight: lineHeight.lineHeight16dot8,
     letterSpacing: letterSpacing.minus0042,
-    fontStyle: 'normal',
+    fontStyle: "normal",
   },
 
   // font size 10

@@ -1,9 +1,9 @@
-import React, { memo } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import Avatar from '../atoms/Avatar';
-import { useNavigation } from '@react-navigation/native';
-import colors from '../../constants/Colors';
+import React, { memo } from "react";
+import { View, StyleSheet, TouchableOpacity } from "react-native";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import Avatar from "../atoms/Avatar";
+import { useNavigation } from "@react-navigation/native";
+import colors from "../../constants/Colors";
 import {
   shadowOpacityElevation,
   size,
@@ -11,9 +11,10 @@ import {
   spacing,
   spacingModerateScale,
   spacingVerticalScale,
-} from '../../constants/Dimensions';
-import PropTypes from 'prop-types';
-import { stringConstants } from '../../constants/StringConstants';
+} from "../../constants/Dimensions";
+import PropTypes from "prop-types";
+import { stringConstants } from "../../constants/StringConstants";
+import { shadow } from "react-native-paper";
 
 export const ChatHeader = memo(
   ({
@@ -25,10 +26,11 @@ export const ChatHeader = memo(
     ChatHeader.propTypes = {
       reconfigApiResponse: PropTypes.shape({
         botName: PropTypes.string,
+     
       }),
-      headerColour: PropTypes.string,
-      navigationPage: PropTypes.string,
-      setnavigationPage: PropTypes.func,
+         headerColour: PropTypes.string,
+        navigationPage: PropTypes.string,
+        setnavigationPage: PropTypes.func,
     };
     const navigation = useNavigation();
 
@@ -42,11 +44,7 @@ export const ChatHeader = memo(
       >
         <TouchableOpacity
           style={styles.backIcon}
-          onPress={
-            navigationPage === stringConstants.coach
-              ? () => navigation.goBack()
-              : () => setnavigationPage(stringConstants.coach)
-          }
+          onPress={() => navigation.goBack()}
         >
           <Ionicons
             name="arrow-back"
@@ -57,15 +55,15 @@ export const ChatHeader = memo(
         <Avatar botName={reconfigApiResponse?.botName} />
       </View>
     );
-  },
+  }
 );
 
 const styles = StyleSheet.create({
   headerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    position: "relative",
     paddingVertical: spacing.space_10,
     paddingHorizontal: size.width_16,
     shadowColor: colors.primaryColors.white,
@@ -78,7 +76,7 @@ const styles = StyleSheet.create({
     elevation: spacingModerateScale.space_s2,
   },
   backIcon: {
-    position: 'absolute',
+    position: "absolute",
     left: size.width_16,
   },
 });
