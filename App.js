@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, {useEffect, useRef} from 'react';
 import {
   LogBox,
   StatusBar,
@@ -10,9 +10,9 @@ import {
   KeyboardAvoidingView,
   View,
 } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import AppNavigator from './src/navigation/appNavigator';
-import { loadFonts } from './src/config/loadFonts';
+// import { loadFonts } from './src/config/loadFonts';
 
 export default function App(props) {
   // LogBox.ignoreAllLogs(true);
@@ -64,17 +64,15 @@ export default function App(props) {
         <KeyboardAvoidingView
           style={styles.innerContainer}
           behavior="padding"
-          keyboardVerticalOffset={0}
-        >
+          keyboardVerticalOffset={0}>
           <AppNavigator standalone={true} props={props} />
         </KeyboardAvoidingView>
       ) : (
         <Animated.View
           style={[
             styles.innerContainer,
-            { transform: [{ translateY: keyboardOffset }] },
-          ]}
-        >
+            {transform: [{translateY: keyboardOffset}]},
+          ]}>
           <AppNavigator standalone={true} props={props} />
         </Animated.View>
       )}
