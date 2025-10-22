@@ -1,6 +1,6 @@
 {
   "name": "elychatbot",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
