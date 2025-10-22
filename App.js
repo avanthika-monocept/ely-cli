@@ -12,23 +12,23 @@ import {
 } from 'react-native';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import AppNavigator from './src/navigation/appNavigator';
-import {loadFonts} from './src/config/loadFonts';
+// import {loadFonts} from './src/config/loadFonts';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 export default function App(props) {
-  LogBox.ignoreAllLogs(true);
+  // LogBox.ignoreAllLogs(true);
   const keyboardOffset = useRef(new Animated.Value(0)).current;
   const insets = useSafeAreaInsets();
 
   useEffect(() => {
-    async function prepare() {
-      try {
-        await loadFonts();
-      } catch (e) {
-        console.warn(e);
-      }
-    }
-    prepare();
+    // async function prepare() {
+    //   try {
+    //     await loadFonts();
+    //   } catch (e) {
+    //     console.warn(e);
+    //   }
+    // }
+    // prepare();
 
     if (Platform.OS === 'android') {
       const onKeyboardShow = () => {
