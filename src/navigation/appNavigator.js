@@ -2,7 +2,7 @@ import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import {Provider} from 'react-redux';
 import store from '../store/store';
-import ChatPage from '../components/pages/ChatPage';
+import {ChatPage} from '../components/pages/ChatPage';
 import PropTypes from 'prop-types';
 import {NavigationContainer} from '@react-navigation/native';
 

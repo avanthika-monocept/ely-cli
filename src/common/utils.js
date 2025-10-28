@@ -107,7 +107,7 @@ export const getFormattedDividerDate = (dateString) => {
   };
 };
 
-export const formatUserMessage = (text, reconfigApiResponse, messageType,replyMessageId = null,replyIndex=0) => {
+export const formatUserMessage = (text, reconfigApiResponse, messageType,replyMessageId = null,replyIndex=0,status='SENT') => {
   const messageId = generateUniqueId();
   return {
      message: {
@@ -115,9 +115,10 @@ export const formatUserMessage = (text, reconfigApiResponse, messageType,replyMe
       messageTo: stringConstants.bot,
       dateTime: new Date().toISOString(),
       activity: null,
-      status: "SENT",
+      status: status,
       replyId: replyMessageId,
       replyIndex: replyIndex,
+      messageType,
       message: {
         text: text.trim(),
         botOption: false,
@@ -128,6 +129,7 @@ export const formatUserMessage = (text, reconfigApiResponse, messageType,replyMe
         image: [],
          document: [],
       },
+      isFromHistory: false,
     },
     socketPayload: {
       action: CHAT_MESSAGE_PROXY,
@@ -149,8 +151,9 @@ export const formatUserMessage = (text, reconfigApiResponse, messageType,replyMe
 // utils/messageFormatter.js
 
 export const formatHistoryMessage = (apiMessage) => {
-  const isBot = apiMessage.messageTo === stringConstants.botCaps;
+ const isBot = apiMessage.messageTo === stringConstants.botCaps;
    let activity = null;
+   let status = null;
   if (apiMessage.emoji && apiMessage.action) {
     if (apiMessage.emoji === stringConstants.thumbsUpEmoji) {
       activity = apiMessage.action === socketConstants.selected ? stringConstants.like : null;
@@ -159,14 +162,23 @@ export const formatHistoryMessage = (apiMessage) => {
       activity = apiMessage.action === socketConstants.selected ? stringConstants.dislike : null;
     }
   }
+  if(apiMessage.status === socketConstants.failed){
+    status = socketConstants.failed;
+  } 
+  else if (apiMessage.status === socketConstants.delivered) {
+    status = isBot ? socketConstants.received : socketConstants.delivered;
+   }
+  else {
+    status = socketConstants.read;
+  }
   return {
     messageId: apiMessage.messageId,
     messageTo: isBot ? stringConstants.bot : stringConstants.user,
     dateTime: new Date(apiMessage.createdAt * 1000).toISOString(),
     activity: activity, 
-    replyId: apiMessage.replyToMessageId, 
+    replyId:apiMessage.replyToMessageId, 
     conversationEnded: false, 
-    status: socketConstants.read,
+    status:  status,
     message: {
       text: apiMessage.text,
       table: null, 
@@ -178,6 +190,7 @@ export const formatHistoryMessage = (apiMessage) => {
       image: [],
       document: [],
     },
+    isFromHistory: true,
   };
 };
  export const getFileExtension = (url) => {
@@ -205,6 +218,12 @@ export const formatHistoryMessage = (apiMessage) => {
     png: "image/png"
   };
   return mimeTypes[extension];
+};
+
+export const getMessageStatus = (netInfo, socket) => {
+  const isOnline = netInfo?.isConnected ?? false;
+  const isWebSocketConnected = socket?.readyState === WebSocket.OPEN;
+  return (isOnline && isWebSocketConnected) ? "SENT" : "PENDING";
 };
 
  

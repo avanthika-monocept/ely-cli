@@ -1,7 +1,7 @@
-import { configureStore } from '@reduxjs/toolkit';
-import appReducer, { setIsMessageSent, appStates } from './reducer';
-import { ApiResponseConstant } from '../constants/StringConstants';
-import { getData } from '../store/actions';  // Adjust this path if needed
+import {configureStore} from '@reduxjs/toolkit';
+import appReducer, {setIsMessageSent, appStates} from './reducer';
+import {ApiResponseConstant} from '../constants/StringConstants';
+import {getData} from './actions'; // Adjust this path if needed
 
 // Mocking the action payloads
 const mockApiResponse = {
@@ -57,7 +57,7 @@ describe('appSlice', () => {
     const state = store.getState().root;
 
     // Assert that the state has not been modified inappropriately
-    expect(state.someUpdatedState).toBeNull() // Adjust as needed
+    expect(state.someUpdatedState).toBeNull(); // Adjust as needed
   });
 
   it('should return the root state correctly from appStates', () => {

@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect, useCallback, useMemo} from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo, use } from "react";
 import {
   View,
   StyleSheet,
@@ -7,65 +7,54 @@ import {
   Platform,
   Text,
   AppState,
-} from 'react-native';
-import {ChatHeader} from '../organims/ChatHeader';
-import ChatFooter from '../organims/ChatFooter';
-import ChatBody from '../organims/ChatBody';
-import FabFloatingButton from '../atoms/FabFloatingButton';
-import {LandingPage} from '../organims/LandingPage';
-import Clipboard from '@react-native-clipboard/clipboard';
-import {useDispatch, useSelector, shallowEqual} from 'react-redux';
-import {
-  addChatHistory,
-  clearMessages,
-  addMessage,
-  updateMessageStatus,
-  markAllMessagesAsRead,
-} from '../../store/reducers/chatSlice';
-import {showLoader, hideLoader} from '../../store/reducers/loaderSlice';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {getData} from '../../store/actions';
-import {fetchChatHistory} from '../../config/api/chatHistory';
-import colors from '../../constants/Colors';
-import {flex, size, spacing} from '../../constants/Dimensions';
-import {
-  splitMarkdownIntoTableAndText,
-  formatBotMessage,
-  formatHistoryMessage,
-} from '../../common/utils';
-import {
-  ApiResponseConstant,
-  platformName,
-  socketConstants,
-  stringConstants,
-  timeoutConstants,
-} from '../../constants/StringConstants';
-import VideoLoader from '../atoms/VideoLoader';
-import {validateJwtToken} from '../../config/api/ValidateJwtToken';
-import {WEBSOCKET_BASE_URL} from '../../constants/constants';
-import PropTypes from 'prop-types';
-import {CHAT_MESSAGE_PROXY} from '../../config/apiUrls';
-import {
-  encryptSocketPayload,
-  decryptSocketPayload,
-} from '../../common/cryptoUtils';
-import {useNetInfo} from '@react-native-community/netinfo';
-import {showToast} from '../../store/reducers/toastSlice';
-import ToastMessage from '../atoms/ToastMessage';
-const ChatPage = ({route}) => {
-  const {jwtToken, userInfo, platform} = route?.params || {};
-  const MAX_TOKEN_RETRIES = 1;
+
+} from "react-native";
+import { ChatHeader } from "../organims/ChatHeader";
+import ChatFooter from "../organims/ChatFooter";
+import ChatBody from "../organims/ChatBody";
+import FabFloatingButton from "../atoms/FabFloatingButton";
+import { LandingPage } from "../organims/LandingPage";
+import Clipboard from "@react-native-clipboard/clipboard";
+import { useDispatch, useSelector, shallowEqual } from "react-redux";
+import { addChatHistory, clearMessages, addMessage, updateMessageStatus } from "../../store/reducers/chatSlice";
+import { useNavigation } from "@react-navigation/native";
+import { showLoader, hideLoader } from "../../store/reducers/loaderSlice";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { getData } from "../../store/actions";
+import { fetchChatHistory } from "../../config/api/chatHistory";
+import colors from "../../constants/Colors";
+import { flex, spacing } from "../../constants/Dimensions";
+import { splitMarkdownIntoTableAndText, formatBotMessage, formatHistoryMessage } from "../../common/utils";
+import { platformName, socketConstants, stringConstants, timeoutConstants } from "../../constants/StringConstants";
+import VideoLoader from "../atoms/VideoLoader";
+import { validateJwtToken } from "../../config/api/ValidateJwtToken";
+import { WEBSOCKET_BASE_URL } from "../../constants/constants";
+import PropTypes from "prop-types";
+import { CHAT_MESSAGE_PROXY } from "../../config/apiUrls";
+import { encryptSocketPayload, decryptSocketPayload } from "../../common/cryptoUtils";
+import { useNetInfo } from "@react-native-community/netinfo";
+import ErrorModal from "../atoms/ErrorModal";
+export const ChatPage = ({ route }) => {
+  const {
+    jwtToken,
+    userInfo,
+    platform
+  } = route?.params || {};
+ const MAX_TOKEN_RETRIES = 1;
   const dispatch = useDispatch();
+  const navigation = useNavigation();
   const [copied, setCopied] = useState(false);
   const scrollViewRef = useRef(null);
   const isAtBottomRef = useRef(true);
+  const responseTimeoutRef = useRef(null);
   const reconfigApiResponseRef = useRef({});
   const tokenRef = useRef(token);
   const isAutoScrollingRef = useRef(false);
-  const [dropDownType, setDropDownType] = useState('');
+  const lastBackgroundTimeRef = useRef(null);
+  const [dropDownType, setDropDownType] = useState("");
   const [messageObjectId, setMessageObjectId] = useState(null);
   const [replyMessageId, setReplyMessageId] = useState(null);
-  const [navigationPage, setnavigationPage] = useState('');
+  const [navigationPage, setnavigationPage] = useState("");
   const [reply, setReply] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
   const [replyIndex, setReplyIndex] = useState(0);
@@ -73,22 +62,23 @@ const ChatPage = ({route}) => {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [inactivityTimer, setInactivityTimer] = useState(null);
-  const [token, settoken] = useState('');
+  const [token, settoken] = useState("");
   const [responseTimeout, setResponseTimeout] = useState(null);
   const [historyLoading, sethistoryLoading] = useState(false);
-  const [keyboardHeight, setKeyboardHeight] = useState('');
+  const [keyboardHeight, setKeyboardHeight] = useState("");
   const [tokenExpiryRetryCount, setTokenExpiryRetryCount] = useState(0);
-  const [fabState, setFabState] = useState({
-    showFab: false,
-    showNewMessageAlert: false,
-    newMessageCount: 0,
+  const [fabState, setFabState] = useState({ showFab: false, showNewMessageAlert: false, newMessageCount: 0 });
+  const [modalData, setModalData] = useState({
+    visible: false,
+    title: "",
+    message: "",
+    buttonText: "",
   });
-  const messages = useSelector(state => state.chat.messages, shallowEqual);
+  const [socket, setSocket] = useState(null);
+  const messages = useSelector((state) => state.chat.messages, shallowEqual);
   const ws = useRef(null);
-  const backgroundColor =
-    reconfigApiResponse?.theme?.backgroundColor ||
-    colors.primaryColors.lightSurface;
-  const isSharing = useSelector(state => state.shareLoader.isSharing);
+  const backgroundColor = reconfigApiResponse?.theme?.backgroundColor || colors.primaryColors.lightSurface;
+  const isSharing = useSelector((state) => state.shareLoader.isSharing);
   const netInfo = useNetInfo();
 
   useEffect(() => {
@@ -97,30 +87,30 @@ const ChatPage = ({route}) => {
   useEffect(() => {
     tokenRef.current = token;
   }, [token]);
-  const messageObject = useMemo(
-    () => messages.find(msg => msg?.messageId === messageObjectId),
-    [messages, messageObjectId],
+  const messageObject = useMemo(() =>
+    messages.find(msg => msg?.messageId === messageObjectId),
+    [messages, messageObjectId]
   );
   const startResponseTimeout = useCallback(() => {
-    if (responseTimeout) {
-      clearTimeout(responseTimeout);
+    if (responseTimeoutRef.current) {
+    clearTimeout(responseTimeoutRef.current);
     }
-    const timeoutId = setTimeout(() => {
-      dispatch(hideLoader());
-    }, timeoutConstants.response);
-    setResponseTimeout(timeoutId);
-  }, []);
+    responseTimeoutRef.current = setTimeout(() => {
+    dispatch(hideLoader());
+    responseTimeoutRef.current = null;
+  }, timeoutConstants.response);
+}, [dispatch]);
 
-  const clearResponseTimeout = useCallback(() => {
-    if (responseTimeout) {
-      clearTimeout(responseTimeout);
-      setResponseTimeout(null);
-    }
-  }, []);
+const clearResponseTimeout = useCallback(() => {
+  if (responseTimeoutRef.current) {
+    clearTimeout(responseTimeoutRef.current);
+    responseTimeoutRef.current = null;
+  }
+}, []);
 
   const SCROLL_BOTTOM_THRESHOLD = 20;
-  const handleScroll = useCallback(({nativeEvent}) => {
-    const {contentOffset} = nativeEvent;
+  const handleScroll = useCallback(({ nativeEvent }) => {
+    const { contentOffset } = nativeEvent;
 
     // Because list is inverted, bottom = y <= threshold
     const isBottom = contentOffset.y <= SCROLL_BOTTOM_THRESHOLD;
@@ -139,7 +129,21 @@ const ChatPage = ({route}) => {
         }));
       }
     }
+
+
   }, []);
+  const showErrorModal = (title, message, buttonText = " ") => {
+    setModalData({
+      visible: true,
+      title,
+      message,
+      buttonText,
+    });
+  };
+
+  const hideModal = () => {
+    setModalData((prev) => ({ ...prev, visible: false }));
+  };
 
   const handleReplyMessage = useCallback(() => {
     if (messageObjectId) {
@@ -148,11 +152,7 @@ const ChatPage = ({route}) => {
     }
   }, [messageObjectId]);
   const resetNewMessageState = useCallback(() => {
-    setFabState({
-      showFab: false,
-      showNewMessageAlert: false,
-      newMessageCount: 0,
-    });
+    setFabState({ showFab: false, showNewMessageAlert: false, newMessageCount: 0 });
   }, []);
   const scrollToDown = useCallback(() => {
     if (scrollViewRef.current) {
@@ -167,19 +167,16 @@ const ChatPage = ({route}) => {
       }, 300);
     }
   }, []);
-  const showTokenToast = () => {
-    dispatch(
-      showToast({
-        type: 'error',
-        title: 'Session Expired',
-        message: 'session expired. Please login again.',
-        actions: [],
-      }),
-    );
-  };
-  const getIsAtBottom = contentOffset =>
-    contentOffset.y <= SCROLL_BOTTOM_THRESHOLD;
-  const onMomentumScrollEnd = ({nativeEvent}) => {
+  const showErrorModalTokenExpiry = () => {
+
+    showErrorModal(
+      "Failed to Login",
+      "Unable to Authenticate details.",
+      "Go Back"
+    )
+  }
+  const getIsAtBottom = (contentOffset) => contentOffset.y <= SCROLL_BOTTOM_THRESHOLD;
+  const onMomentumScrollEnd = ({ nativeEvent }) => {
     const isBottom = getIsAtBottom(nativeEvent.contentOffset);
     if (isAutoScrollingRef.current && isBottom) {
       resetNewMessageState();
@@ -189,15 +186,10 @@ const ChatPage = ({route}) => {
       resetNewMessageState();
     }
   };
-  const loadChatHistory = async (
-    agentId,
-    page,
-    message,
-    currentToken,
-    isRetry = false,
-  ) => {
+  const loadChatHistory = async (agentId, page, message, currentToken, isRetry = false) => {
+
     if (!isRetry && tokenExpiryRetryCount > MAX_TOKEN_RETRIES) {
-      showTokenToast();
+      showErrorModalTokenExpiry();
       return;
     }
 
@@ -206,39 +198,23 @@ const ChatPage = ({route}) => {
 
     try {
       sethistoryLoading(true);
-      const newMessages = await fetchChatHistory(
-        agentId,
-        page,
-        message,
-        currentToken,
-        tokenExpiryRetryCount,
-      );
+      const newMessages = await fetchChatHistory(agentId, page, message, currentToken, tokenExpiryRetryCount);
       if (!newMessages || newMessages.length === 0) {
         setHasMore(false);
         sethistoryLoading(false);
         return;
       }
-      newMessages?.content?.forEach(msg => {
-        if (
-          msg?.messageTo === stringConstants.userCaps &&
-          msg?.status === socketConstants.delivered
-        ) {
-          sendAcknowledgement(msg.messageId);
-        }
-      });
       const formattedMessages = newMessages?.content.map(msg =>
-        formatHistoryMessage(msg),
+        formatHistoryMessage(msg)
       );
       dispatch(addChatHistory(formattedMessages));
-      setPage(prev => prev + 1);
+      setPage((prev) => prev + 1);
       sethistoryLoading(false);
+
     } catch (err) {
       sethistoryLoading(false);
 
-      if (
-        err.message === 'TOKEN_EXPIRED' &&
-        tokenExpiryRetryCount < MAX_TOKEN_RETRIES
-      ) {
+      if (err.message === "TOKEN_EXPIRED" && tokenExpiryRetryCount < MAX_TOKEN_RETRIES) {
         try {
           const refreshedToken = await refreshToken(); // validateJwtToken inside
           setTokenExpiryRetryCount(prev => prev + 1);
@@ -246,19 +222,20 @@ const ChatPage = ({route}) => {
           // retry only once with new token
           await loadChatHistory(agentId, page, message, refreshedToken, true);
         } catch (refreshError) {
-          showTokenToast();
+          showErrorModalTokenExpiry();
         }
       } else {
         // second time or other error
+        setHasMore(false)
         console.error(stringConstants.failToLoad, err);
-        showTokenToast();
+        showErrorModalTokenExpiry();
       }
     }
   };
 
   const reconnectWebSocket = async () => {
     if (tokenExpiryRetryCount > MAX_TOKEN_RETRIES) {
-      showTokenToast();
+      showErrorModalTokenExpiry();
       return;
     }
 
@@ -268,9 +245,9 @@ const ChatPage = ({route}) => {
         connectWebSocket(agentId, tokenRef.current);
       }
     } catch (error) {
-      console.error('WebSocket reconnection failed:', error);
+      console.error("WebSocket reconnection failed:", error);
       if (tokenExpiryRetryCount > MAX_TOKEN_RETRIES) {
-        showTokenToast();
+        showErrorModalTokenExpiry();
       }
     }
   };
@@ -278,7 +255,7 @@ const ChatPage = ({route}) => {
     const WEBSOCKET_URL = `${WEBSOCKET_BASE_URL}${agentId}&Auth=${token}`;
 
     if (!agentId || !token) {
-      console.error('Agent ID or token is missing. Cannot connect WebSocket.');
+      console.error("Agent ID or token is missing. Cannot connect WebSocket.");
       return;
     }
 
@@ -286,18 +263,23 @@ const ChatPage = ({route}) => {
 
     ws.current.onopen = () => {
       console.log(stringConstants.socketConnected);
-      setTokenExpiryRetryCount(0); // Reset on successful connection
+      setTokenExpiryRetryCount(0);
+      setSocket(ws.current);
     };
-    ws.current.onmessage = event => {
+    ws.current.onmessage = (event) => {
       try {
         if (!event.data) return;
         const data = JSON.parse(event.data);
         // Handle encrypted payload
         if (data.payload) {
           const decryptedData = decryptSocketPayload(data);
+          if (decryptedData.type === socketConstants.error) {
+            handleErrorMessage(decryptedData);
+          }
           if (decryptedData.type === socketConstants.botResponse) {
             handleBotMessage(decryptedData);
-          } else if (decryptedData.type === socketConstants.acknowledgement) {
+          }
+          else if (decryptedData.type === socketConstants.acknowledgement) {
             handleAcknowledgement(decryptedData);
           }
         }
@@ -306,7 +288,8 @@ const ChatPage = ({route}) => {
           console.warn('Received unencrypted message:', data);
           if (data.type === socketConstants.botResponse) {
             handleBotMessage(data);
-          } else if (data.type === socketConstants.acknowledgement) {
+          }
+          else if (data.type === socketConstants.acknowledgement) {
             handleAcknowledgement(data);
           }
         }
@@ -314,7 +297,7 @@ const ChatPage = ({route}) => {
         console.error('Message processing error:', err);
       }
     };
-    ws.current.onerror = error => {
+    ws.current.onerror = (error) => {
       clearResponseTimeout();
 
       // Check if error is due to token expiry (WebSocket error code 1008)
@@ -323,11 +306,11 @@ const ChatPage = ({route}) => {
       }
     };
 
-    ws.current.onclose = e => {
+    ws.current.onclose = (e) => {
       console.log(`WebSocket closed: ${e.code} - ${e.reason}`);
 
       // Check if closure is due to token expiry (1008 = policy violation, often token related)
-      if (e.code === 1008) {
+      if (e.code === 1008 || e.code === 1006) {
         handleWebSocketTokenExpiry();
       }
 
@@ -335,7 +318,7 @@ const ChatPage = ({route}) => {
       setPage(0);
       clearResponseTimeout();
 
-      if (e.code === 1001 && AppState.currentState === 'active') {
+      if (e.code === 1001 && e.reason == "Going away" && AppState.currentState === "active") {
         reconnectWebSocket();
       }
     };
@@ -348,16 +331,15 @@ const ChatPage = ({route}) => {
         setTokenExpiryRetryCount(prev => prev + 1);
 
         if (reconfigApiResponseRef.current?.userInfo?.agentId && newToken) {
-          connectWebSocket(
-            reconfigApiResponseRef.current.userInfo.agentId,
-            newToken,
-          );
+          connectWebSocket(reconfigApiResponseRef.current.userInfo.agentId, newToken);
         }
       } catch (error) {
-        showTokenToast();
+
+        showErrorModalTokenExpiry();
       }
     } else {
-      showTokenToast();
+
+      showErrorModalTokenExpiry();
     }
   };
   const cleanupWebSocket = (sendDisconnect = false) => {
@@ -368,18 +350,17 @@ const ChatPage = ({route}) => {
           action: socketConstants.disconnect,
           userId: reconfigApiResponseRef.current?.userInfo?.agentId,
         };
-        console.log(
-          `Disconnecting WebSocket for agentId: ${reconfigApiResponseRef.current?.userInfo?.agentId}`,
-        );
+        console.log(`Disconnecting WebSocket for agentId: ${reconfigApiResponseRef.current?.userInfo?.agentId}`);
         ws.current.send(JSON.stringify(disconnectPayload));
       }
     } catch (error) {
       console.error(error);
     } finally {
       ws.current = null;
+      setSocket(ws.current);
     }
   };
-  const sendAcknowledgement = messageId => {
+  const sendAcknowledgement = (messageId) => {
     if (ws.current && ws.current.readyState === WebSocket.OPEN) {
       const currentConfig = reconfigApiResponseRef.current;
       const payload = {
@@ -394,26 +375,28 @@ const ChatPage = ({route}) => {
       const finalPayload = {
         action: CHAT_MESSAGE_PROXY,
         token: token,
-        payload: encryptedPayload,
+        payload: encryptedPayload
       };
       ws.current.send(JSON.stringify(finalPayload));
     }
   };
   const refreshToken = async () => {
     try {
-      const validationResponse = await validateJwtToken(jwtToken, platform, {
-        agentId: userInfo?.agentId,
-        userName: userInfo?.userName,
-        email: userInfo?.email,
-        role: userInfo?.role,
-        firebaseId: userInfo?.firebaseId,
-        deviceId: userInfo?.deviceId,
-      });
-      if (
-        !validationResponse ||
-        validationResponse.status !== stringConstants.success
-      ) {
-        throw new Error('Token validation failed');
+
+      const validationResponse = await validateJwtToken(
+        jwtToken,
+        platform,
+        {
+          agentId: userInfo?.agentId,
+          userName: userInfo?.userName,
+          email: userInfo?.email,
+          role: userInfo?.role,
+          firebaseId: userInfo?.firebaseId,
+          deviceId: userInfo?.deviceId,
+        }
+      );
+      if (!validationResponse || validationResponse.status !== stringConstants.success) {
+        throw new Error("Token validation failed");
       }
 
       const newToken = validationResponse?.data?.elyAuthToken;
@@ -421,14 +404,32 @@ const ChatPage = ({route}) => {
       setTokenExpiryRetryCount(0);
       return newToken;
     } catch (error) {
-      console.error('Token refresh failed:', error);
+      console.error("Token refresh failed:", error);
       throw error;
     }
+  };
+  const waitForSocketOpen = (socket, timeout = 8000) => {
+    return new Promise((resolve, reject) => {
+      if (!socket) return reject(new Error("Socket not initialized"));
+      if (socket.readyState === WebSocket.OPEN) return resolve();
+
+      const checkInterval = setInterval(() => {
+        if (socket.readyState === WebSocket.OPEN) {
+          clearInterval(checkInterval);
+          resolve();
+        }
+      }, 100);
+
+      setTimeout(() => {
+        clearInterval(checkInterval);
+        reject(new Error("WebSocket connection timed out"));
+      }, timeout);
+    });
   };
 
   const initialize = async (isRetry = false) => {
     if (!isRetry && tokenExpiryRetryCount > MAX_TOKEN_RETRIES) {
-      showTokenToast();
+      showErrorModalTokenExpiry();
       return;
     }
 
@@ -436,22 +437,41 @@ const ChatPage = ({route}) => {
       setIsInitializing(true);
       dispatch(clearMessages());
       setPage(0);
+      if (!jwtToken || !userInfo.agentId || !platform) {
+        console.error("[initialize] ❌ Critical payload field not found. Aborting initialization.");
+        showErrorModal(
+          "Something went wrong",
+          "Please try logging in again.",
+          "Go Back"
+        );
+        setIsInitializing(false);
+        return;
+      }
+      let validationResponse = null;
+      try {
+        validationResponse = await validateJwtToken(
+          jwtToken,
+          platform,
+          {
+            agentId: userInfo?.agentId,
+            userName: userInfo?.userName,
+            email: userInfo?.email,
+            role: userInfo?.role,
+            firebaseId: userInfo?.firebaseId,
+            deviceId: userInfo?.deviceId,
+          }
+        );
+      }
+      catch (err) {
+        console.error("[initialize] ❌ Token validation failed:", err);
+        showErrorModal("something went wrong", "Please try logging in again.", "Go Back");
+        setIsInitializing(false);
+        return;
+      }
 
-      // 🔹 validate token
-      const validationResponse = await validateJwtToken(jwtToken, platform, {
-        agentId: userInfo?.agentId,
-        userName: userInfo?.userName,
-        email: userInfo?.email,
-        role: userInfo?.role,
-        firebaseId: userInfo?.firebaseId,
-        deviceId: userInfo?.deviceId,
-      });
 
-      if (
-        !validationResponse ||
-        validationResponse.status !== stringConstants.success
-      ) {
-        throw new Error('TOKEN_EXPIRED'); // standardize failure reason
+      if (!validationResponse || validationResponse.status !== stringConstants.success) {
+        throw new Error("TOKEN_EXPIRED"); // standardize failure reason
       }
 
       const newToken = validationResponse?.data?.elyAuthToken;
@@ -464,41 +484,38 @@ const ChatPage = ({route}) => {
           agentId: userInfo?.agentId?.toLowerCase(),
           platform,
           retryCount: tokenExpiryRetryCount,
-        }),
+        })
       ).unwrap();
 
       if (response && response.userInfo?.agentId) {
         setnavigationPage(response.statusFlag);
-        setReconfigApiResponse(prev => ({...prev, ...response}));
-
-        if (response.userInfo.agentId && newToken) {
-          await loadChatHistory(response.userInfo.agentId, page, 10, newToken);
-        }
+        setReconfigApiResponse(prev => ({ ...prev, ...response }));
 
         if (response.userInfo.agentId && newToken) {
           connectWebSocket(response.userInfo.agentId, newToken);
+          await waitForSocketOpen(ws.current);
+          await loadChatHistory(response.userInfo.agentId, page, 10, newToken);
         }
+
       }
     } catch (error) {
       // 🔹 Check standardized error from thunk
-      if (
-        error === 'TOKEN_EXPIRED' &&
-        tokenExpiryRetryCount < MAX_TOKEN_RETRIES
-      ) {
+      if (error === "TOKEN_EXPIRED" && tokenExpiryRetryCount < MAX_TOKEN_RETRIES) {
         try {
-          const refreshResponse = await validateJwtToken(jwtToken, platform, {
-            agentId: userInfo?.agentId,
-            userName: userInfo?.userName,
-            email: userInfo?.email,
-            role: userInfo?.role,
-            firebaseId: userInfo?.firebaseId,
-            deviceId: userInfo?.deviceId,
-          });
+          const refreshResponse = await validateJwtToken(
+            jwtToken,
+            platform,
+            {
+              agentId: userInfo?.agentId,
+              userName: userInfo?.userName,
+              email: userInfo?.email,
+              role: userInfo?.role,
+              firebaseId: userInfo?.firebaseId,
+              deviceId: userInfo?.deviceId,
+            }
+          );
 
-          if (
-            refreshResponse &&
-            refreshResponse.status === stringConstants.success
-          ) {
+          if (refreshResponse && refreshResponse.status === stringConstants.success) {
             const refreshedToken = refreshResponse?.data?.elyAuthToken;
             settoken(refreshedToken);
 
@@ -506,17 +523,25 @@ const ChatPage = ({route}) => {
             setTokenExpiryRetryCount(prev => prev + 1);
             await initialize(true);
           } else {
-            throw new Error('Token refresh failed');
+            throw new Error("Token refresh failed");
           }
         } catch (refreshError) {
-          console.error('Token refresh failed:', refreshError);
-          showTokenToast();
+          console.error("Token refresh failed:", refreshError);
+          showErrorModalTokenExpiry();
         }
       } else {
-        console.error('Initialize error:', error);
+        console.error("Initialize error:", error);
         if (tokenExpiryRetryCount >= MAX_TOKEN_RETRIES) {
-          showTokenToast();
+          showErrorModalTokenExpiry();
         }
+      }
+
+      if (error.message === "PLATFORM_TOKEN_EXPIRED") {
+        showErrorModal(
+          "Failed to Login",
+          "Unable to Authenticate details.",
+          "Go Back"
+        )
       }
     } finally {
       setIsInitializing(false);
@@ -532,7 +557,7 @@ const ChatPage = ({route}) => {
     initialize();
     return () => {
       safelyCleanupSocket();
-    };
+    }
   }, []);
   useEffect(() => {
     if (navigationPage === stringConstants.coach) {
@@ -543,76 +568,89 @@ const ChatPage = ({route}) => {
   useEffect(() => {
     let currentAppState = AppState.currentState;
     let isMounted = true; // Track mounted state
-    const handleAppStateChange = nextAppState => {
+    const handleAppStateChange = (nextAppState) => {
       if (!isMounted) return;
-      if (
-        currentAppState === 'active' &&
-        nextAppState.match(/inactive|background/)
-      ) {
+      if (currentAppState === 'active' && nextAppState.match(/inactive|background/)) {
+        lastBackgroundTimeRef.current = Date.now();
         safelyCleanupSocket();
       }
-      if (
-        currentAppState.match(/inactive|background/) &&
-        nextAppState === 'active'
-      ) {
+      if (currentAppState.match(/inactive|background/) && nextAppState === 'active') {
         if (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
-          initialize();
+          const now = Date.now();
+          const delta = now - (lastBackgroundTimeRef.current || 0);
+          if (delta > 60000) {
+            initialize();
+          } else {
+            reconnectWebSocket();
+          }
         }
       }
       currentAppState = nextAppState;
     };
-    const subscription = AppState.addEventListener(
-      'change',
-      handleAppStateChange,
-    );
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
     return () => {
       isMounted = false;
       subscription.remove();
       safelyCleanupSocket();
     };
   }, []);
-  const handleBotMessage = data => {
+ 
+useEffect(() => {
+  if (navigationPage === stringConstants.agenda && messages.length > 0) {
+    const deliveredMessages = messages.filter(msg => 
+      msg?.messageTo === stringConstants.user &&
+      msg?.status === socketConstants.delivered &&
+      msg?.isFromHistory
+    );
+    deliveredMessages.forEach(msg => {
+      sendAcknowledgement(msg.messageId);
+      updateMessageStatus({
+        messageId: msg.messageId,
+        status: socketConstants.read,
+      });
+      });
+  }
+}, [navigationPage, messages]);
+  const handleBotMessage = (data) => {
     clearResponseTimeout();
     dispatch(hideLoader());
     if (inactivityTimer) {
       clearTimeout(inactivityTimer);
     }
-    setInactivityTimer(
-      setTimeout(() => {
-        cleanupWebSocket(true);
-      }, timeoutConstants.inactivity),
-    );
+    setInactivityTimer(setTimeout(() => {
+      cleanupWebSocket(true);
+    }, timeoutConstants.inactivity));
     sendAcknowledgement(data?.messageId);
     const botMessage = formatBotMessage(data);
-    setnavigationPage('agenda');
+    setnavigationPage("agenda");
     if (!isAtBottomRef.current) {
-      setFabState(prev => ({
-        ...prev,
-        showFab: true,
-        showNewMessageAlert: true,
-        newMessageCount: prev.newMessageCount + 1,
-      }));
+      setFabState(prev => ({ ...prev, showFab: true, showNewMessageAlert: true, newMessageCount: prev.newMessageCount + 1 }));
     }
     dispatch(addMessage(botMessage));
   };
+  const handleErrorMessage = (errorData) => {
+    clearResponseTimeout();
+    dispatch(updateMessageStatus({
+      messageId: errorData.messageId,
+      status: socketConstants.failed,
+    }));
+  };
+  const handleAcknowledgement = (data) => {
 
-  const handleAcknowledgement = data => {
     if (data.acknowledgement === socketConstants.received) {
       dispatch(showLoader());
       startResponseTimeout();
-      dispatch(
-        updateMessageStatus({
-          messageId: data.messageId,
-          status: socketConstants.read,
-        }),
-      );
-    } else if (data.acknowledgement === socketConstants.delivered) {
-      dispatch(
-        updateMessageStatus({
-          messageId: data.messageId,
-          status: socketConstants.received,
-        }),
-      );
+      dispatch(updateMessageStatus({
+        messageId: data.messageId,
+        status: socketConstants.read,
+      }));
+    }
+    else if (data.acknowledgement === socketConstants.delivered) {
+      dispatch(updateMessageStatus({
+        messageId: data.messageId,
+        status: socketConstants.received,
+      }));
+
     }
   };
   const handleReplyClose = () => {
@@ -639,6 +677,7 @@ const ChatPage = ({route}) => {
     }
   }, [messageObject]);
 
+
   useEffect(() => {
     if (netInfo?.isConnected) {
       if (!ws.current || ws.current.readyState !== WebSocket.OPEN) {
@@ -656,18 +695,19 @@ const ChatPage = ({route}) => {
     <SafeAreaView
       style={[
         styles.container,
-        {marginTop: Platform.OS === 'android' ? keyboardHeight / 10 : 0},
-      ]}>
+        { marginTop: Platform.OS === "android" ? keyboardHeight / 10 : 0 },
+      ]}
+    >
       <StatusBar backgroundColor={colors.primaryColors.darkBlue} />
-      {Platform.OS === 'android' && keyboardHeight > 100 && (
+      {Platform.OS === "android" && keyboardHeight > 100 && (
         <View
           style={{
-            position: 'absolute',
+            position: "absolute",
             zIndex: 1,
             top: -36,
             backgroundColor: colors.primaryColors.darkBlue,
             height: 40,
-            width: '100%',
+            width: "100%",
           }}
         />
       )}
@@ -683,42 +723,65 @@ const ChatPage = ({route}) => {
       )}
 
       <View style={styles.content}>
-        <ToastMessage />
+
+        {modalData.visible &&
+          <View style={styles.modalContainer}>
+            <ErrorModal
+              visible={modalData.visible}
+              title={modalData.title}
+              message={modalData.message}
+              buttonText={modalData.buttonText}
+              action={() => {
+                hideModal();
+                navigation.goBack()
+              }}
+            />
+          </View>
+
+        }
+
+
         {!isInitializing && navigationPage === stringConstants.coach && (
           <LandingPage
-            socket={ws.current}
+            socket={socket}
             setnavigationPage={setnavigationPage}
             reconfigApiResponse={reconfigApiResponse}
             startResponseTimeout={startResponseTimeout}
             token={token}
             hasMore={hasMore}
+            historyLoading={historyLoading}
           />
         )}
         {!isInitializing && navigationPage !== stringConstants.coach && (
           <ChatBody
             scrollViewRef={scrollViewRef}
+
             handleScroll={handleScroll}
             setDropDownType={setDropDownType}
             setMessageObjectId={setMessageObjectId}
+
             handleReplyMessage={handleReplyMessage}
             setReplyIndex={setReplyIndex}
             replyIndex={replyIndex}
             loadChatHistory={loadChatHistory}
             page={page}
             reconfigApiResponse={reconfigApiResponse}
-            socket={ws.current}
+            socket={socket}
             copyToClipboard={copyToClipboard}
             setCopied={setCopied}
             token={token}
             historyLoading={historyLoading}
             hasMore={hasMore}
             handleScrollEnd={onMomentumScrollEnd}
+
           />
         )}
       </View>
       {navigationPage !== stringConstants.coach && fabState.showFab && (
         <KeyboardAvoidingView>
-          <View style={styles.fabWrapper}>
+          <View
+            style={styles.fabWrapper}
+          >
             <FabFloatingButton
               onClick={scrollToDown}
               showFab={fabState.showFab}
@@ -740,7 +803,7 @@ const ChatPage = ({route}) => {
         setMessageObjectId={setMessageObjectId}
         setReplyMessageId={setReplyMessageId}
         replyMessageId={replyMessageId}
-        socket={ws.current}
+        socket={socket}
         setReply={setReply}
         replyIndex={replyIndex}
         reply={reply}
@@ -749,9 +812,12 @@ const ChatPage = ({route}) => {
         reconfigApiResponse={reconfigApiResponse}
         messages={messages}
         copyToClipboard={copyToClipboard}
+
         scrollToDown={scrollToDown}
         inactivityTimer={inactivityTimer}
         setInactivityTimer={setInactivityTimer}
+
+
         cleanupWebSocket={cleanupWebSocket}
         startResponseTimeout={startResponseTimeout}
         clearResponseTimeout={clearResponseTimeout}
@@ -784,10 +850,16 @@ const styles = StyleSheet.create({
     backgroundColor: colors.loaderBackground.loaderBackgroundDark,
   },
   fabWrapper: {
-    position: 'absolute',
+    position: "absolute",
     bottom: spacing.space_10,
     right: spacing.space_m3,
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  }
+
 });
 ChatPage.propTypes = {
   route: PropTypes.shape({
@@ -799,4 +871,3 @@ ChatPage.propTypes = {
     }),
   }),
 };
-export default ChatPage;
