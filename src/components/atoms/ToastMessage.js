@@ -1,17 +1,14 @@
-import React, { useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
-import { hideToast } from "../../store/reducers/toastSlice";
-import colors from "../../constants/Colors";
-import AlertIcon from "../../../assets/alert.svg";
-import { LinearGradient } from "react-native-linear-gradient";
+import React, {useEffect} from 'react';
+import {View, Text, StyleSheet, TouchableOpacity, Platform} from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
+import {hideToast} from '../../store/reducers/toastSlice';
+import colors from '../../constants/Colors';
+import AlertIcon from '../../../assets/alert.svg';
+import {LinearGradient} from 'react-native-linear-gradient';
 import PropTypes from 'prop-types';
 
-const ToastMessage = ({ actions, title, message }) => {
-
-
-
-  const borderColor = colors.primaryColors.bloodRed
+const ToastMessage = ({actions, title, message}) => {
+  const borderColor = colors.primaryColors.bloodRed;
 
   const GRADIENT_COLORS = ['#ffeded', '#fff8f8', '#fffefe'];
   const renderActions = () => {
@@ -19,14 +16,17 @@ const ToastMessage = ({ actions, title, message }) => {
       // Inline single action
       return (
         <TouchableOpacity
-          style={[styles.actionBtn, styles.secondaryBtn,actions[0]?.disabled && { opacity: 0.5 }]}
+          style={[
+            styles.actionBtn,
+            styles.secondaryBtn,
+            actions[0]?.disabled && {opacity: 0.5},
+          ]}
           onPress={() => {
             if (!actions[0]?.disabled) {
               actions[0]?.onPress?.();
             }
           }}
-          disabled={actions[0]?.disabled}
-        >
+          disabled={actions[0]?.disabled}>
           <Text style={[styles.actionText, styles.secondaryText]}>
             {actions[0]?.label}
           </Text>
@@ -47,15 +47,12 @@ const ToastMessage = ({ actions, title, message }) => {
               ]}
               onPress={() => {
                 action.onPress?.();
-
-              }}
-            >
+              }}>
               <Text
                 style={[
                   styles.actionText,
                   index === 0 ? styles.secondaryText : styles.primaryText,
-                ]}
-              >
+                ]}>
                 {action.label}
               </Text>
             </TouchableOpacity>
@@ -71,19 +68,16 @@ const ToastMessage = ({ actions, title, message }) => {
     <View style={styles.outerContainer}>
       <LinearGradient
         colors={GRADIENT_COLORS}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-        style={styles.gradient}
-      >
-
-        <View style={{ flex: 1 }}>
+        start={{x: 0, y: 0}}
+        end={{x: 0, y: 1}}
+        style={styles.gradient}>
+        <View style={{flex: 1, padding: Platform.OS == 'ios' ? 14 : 0}}>
           <View style={styles.rowBetween}>
             <View style={styles.iconBox}>
               <AlertIcon width={20} height={20} />
             </View>
-            <View style={{ flex: 1 }}>
-
-              <Text style={[styles.title, { color: borderColor }]}>{title}</Text>
+            <View style={{flex: 1}}>
+              <Text style={[styles.title, {color: borderColor}]}>{title}</Text>
               {message && <Text style={styles.message}>{message}</Text>}
             </View>
             {actions?.length === 1 && renderActions()}
@@ -100,28 +94,28 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.primaryColors.bloodRed,
     borderRadius: 8,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 5,
     zIndex: 1000,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   gradient: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 14,
-    paddingHorizontal: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: Platform.OS == 'ios' ? 0 : 14,
+    paddingHorizontal: Platform.OS == 'ios' ? 0 : 14,
     borderRadius: 5,
     width: '100%',
   },
   title: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   message: {
     fontSize: 14,
-    color: "#333",
+    color: '#333',
   },
   iconBox: {
     marginRight: 12,
@@ -131,15 +125,16 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     backgroundColor: colors.primaryColors.white,
     shadowColor: colors.primaryColors.bloodRed,
-    shadowOffset: { width: 4, height: 4 },
+    shadowOffset: {width: 4, height: 4},
     shadowOpacity: 1,
     shadowRadius: 12,
     elevation: 4,
+    marginVertical: Platform.OS == 'ios' ? 0 : 8,
   },
   rowBetween: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   actionBtn: {
     paddingVertical: 6,
@@ -147,6 +142,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     marginLeft: 8,
+    marginRight: Platform.OS == 'ios' ? 0 : 20,
   },
   secondaryBtn: {
     backgroundColor: colors.primaryColors.white,
@@ -154,7 +150,7 @@ const styles = StyleSheet.create({
   },
   actionText: {
     fontSize: 14,
-    fontWeight: "700",
+    fontWeight: '700',
   },
   secondaryText: {
     color: colors.primaryColors.charcoalGray,
@@ -167,8 +163,8 @@ const styles = StyleSheet.create({
     color: colors.primaryColors.white,
   },
   actionsRow: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
     marginTop: 12,
     gap: 2,
   },
@@ -181,7 +177,7 @@ ToastMessage.propTypes = {
       label: PropTypes.string.isRequired,
       onPress: PropTypes.func,
       disabled: PropTypes.bool,
-    })
+    }),
   ),
 };
 export default ToastMessage;
