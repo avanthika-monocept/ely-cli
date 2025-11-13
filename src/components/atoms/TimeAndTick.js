@@ -1,37 +1,50 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import SingleTick from "../../../assets/singleTick.svg";
-import DoubleTickRead from "../../../assets/doubleTick.svg";
-import DoubleTickDelivered from "../../../assets/doubleTickSent.svg";
-import AlertIcon from "../../../assets/alert.svg";
-import PropTypes from "prop-types";
-import colors from "../../constants/Colors";
-import { fontStyle } from "../../constants/Fonts";
-import { sizeWithoutScale, spacing } from "../../constants/Dimensions";
-import TimerIcon from "../../../assets/timer.svg";
-export const TimeAndTick = ({ time, status, isBot, isImageOnly  }) => {
+import React from 'react';
+import {View, Text, StyleSheet, Platform} from 'react-native';
+import SingleTick from '../../../assets/singleTick.svg';
+import DoubleTickRead from '../../../assets/doubleTick.svg';
+import DoubleTickDelivered from '../../../assets/doubleTickSent.svg';
+import AlertIcon from '../../../assets/alert.svg';
+import PropTypes from 'prop-types';
+import colors from '../../constants/Colors';
+import {fontStyle} from '../../constants/Fonts';
+import {sizeWithoutScale, spacing} from '../../constants/Dimensions';
+import TimerIcon from '../../../assets/timer.svg';
+export const TimeAndTick = ({time, status, isBot, isImageOnly}) => {
   const getTickIcon = () => {
     switch (status) {
-      case "FAILED":
-      return <AlertIcon testID="alert-icon" width={12} height={12} />;
-      case "PENDING":
-      return <TimerIcon testID="timer-icon" width={12}/>;
-      case "READ":
+      case 'FAILED':
+        return <AlertIcon testID="alert-icon" width={12} height={12} />;
+      case 'PENDING':
+        return <TimerIcon testID="timer-icon" width={12} />;
+      case 'READ':
         return <DoubleTickRead testID="double-tick-read" />;
-      case "SENT":
-        return <SingleTick  testID="single-tick" />;
-      case "RECEIVED":
+      case 'SENT':
+        return <SingleTick testID="single-tick" />;
+      case 'RECEIVED':
         return <DoubleTickDelivered testID="double-tick-delivered" />;
       default:
-        return <SingleTick  testID="single-tick" />;
+        return <SingleTick testID="single-tick" />;
     }
   };
   return (
-    <View style={[styles.timeAndTickContainer, isImageOnly && styles.imageOnlyContainer]}>
-      <Text style={[styles.time, isImageOnly && styles.imageOnlyTime]}>{time}</Text>
-      {!isBot && (
-        <View style={styles.checkContainer}>{getTickIcon()}</View>
-      )}
+    <View
+      style={[
+        styles.timeAndTickContainer,
+        isImageOnly && styles.imageOnlyContainer,
+        {
+          padding:
+            Platform.OS == 'ios'
+              ? isBot
+                ? spacing.space_s0
+                : spacing.space_s1
+              : spacing.space_s0,
+          paddingRight: Platform.OS == 'ios' ? (isBot ? 0 : 20) : 0,
+        },
+      ]}>
+      <Text style={[styles.time, isImageOnly && styles.imageOnlyTime]}>
+        {time}
+      </Text>
+      {!isBot && <View style={styles.checkContainer}>{getTickIcon()}</View>}
     </View>
   );
 };
@@ -43,28 +56,28 @@ TimeAndTick.propTypes = {
 };
 const styles = StyleSheet.create({
   timeAndTickContainer: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
     gap: spacing.space_s1,
-    padding:spacing.space_s0,
   },
   time: {
-    
     ...fontStyle.bodySmallMedium,
-    fontSize:spacing.space_10,
+    fontSize: spacing.space_10,
     color: colors.darkNeutrals.n600,
   },
   checkContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-   imageOnlyContainer: {
+  imageOnlyContainer: {
     position: 'absolute',
     bottom: sizeWithoutScale.height7,
     right: spacing.space_10,
   },
   imageOnlyTime: {
-    color: colors.primaryColors.white
+    color: colors.primaryColors.white,
   },
 });
+ 
+ 
