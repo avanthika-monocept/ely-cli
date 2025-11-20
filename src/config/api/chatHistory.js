@@ -7,7 +7,7 @@ import { stringConstants } from "../../constants/StringConstants";
 const MAX_TOKEN_RETRIES = 1;
 export const fetchChatHistory = async (agentId, page = 0, size = 10, token, retryCount = 0, platform) => {
   try {
-    const rawPayload = { agentId: agentId, page: page, size: size };
+    const rawPayload = { agentId: agentId, page: page, size: size, platform: platform};
     const encryptedPayload = encNewPayload(rawPayload);
 
     const response = await apiCall({
