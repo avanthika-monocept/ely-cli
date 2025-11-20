@@ -96,6 +96,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.space_10,
   },
   loaderText: {
+    color:colors.primaryColors.woodSmoke,
     marginLeft: spacing.space_s2,
     ...fontStyle.bodyBold3,
   },

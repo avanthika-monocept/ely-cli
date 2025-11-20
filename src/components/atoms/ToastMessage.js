@@ -1,10 +1,11 @@
 import React, { useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Platform } from "react-native";
 import colors from "../../constants/Colors";
 import AlertIcon from "../../../assets/alert.svg";
 import Info from "../../../assets/Info.svg"
 import { LinearGradient } from "react-native-linear-gradient";
 import PropTypes from 'prop-types';
+
 
 const ToastMessage = ({ actions, title, message, type }) => {
   const isInfo= type === 'info'
@@ -72,7 +73,7 @@ const ToastMessage = ({ actions, title, message, type }) => {
         style={styles.gradient}
       >
 
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, padding: Platform.OS == 'ios' ? 14 : 0 }}>
           <View style={styles.rowBetween}>
             <View style={[styles.iconBox,{ padding: isInfo ? 2 : 6, shadowColor: isInfo ? colors.primaryColors.borderBlue : borderColorError}]}>
               {isInfo ? <Info width={30} height={30} /> :<AlertIcon width={20} height={20} />}
@@ -106,8 +107,8 @@ const styles = StyleSheet.create({
   gradient: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 14,
-    paddingHorizontal: 14,
+    paddingVertical: Platform.OS == 'ios' ? 0 : 14,
+    paddingHorizontal: Platform.OS == 'ios' ? 0 : 14,
     borderRadius: 5,
     width: '100%',
   },
@@ -128,9 +129,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primaryColors.white,
     shadowColor: colors.primaryColors.bloodRed,
     shadowOffset: { width: 4, height: 4 },
-    shadowOpacity: 1,
+    shadowOpacity: Platform.OS == 'ios' ? 0.35 : 1,
     shadowRadius: 12,
     elevation: 4,
+    marginVertical:Platform.OS == 'ios' ? 0 : 8,
   },
   rowBetween: {
     flexDirection: "row",
@@ -143,6 +145,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     marginLeft: 8,
+    marginRight: Platform.OS == 'ios' ? 0 : 20,
   },
   secondaryBtn: {
     backgroundColor: colors.primaryColors.white,
