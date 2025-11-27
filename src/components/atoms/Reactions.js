@@ -52,7 +52,6 @@ return (
           borderRadius={borderRadius.borderRadius4}
         >
           <TouchableOpacity
-            key={id}
             testID={`reaction-${id}`}
             style={[
               styles.option,
