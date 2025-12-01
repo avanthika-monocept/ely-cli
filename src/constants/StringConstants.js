@@ -77,6 +77,7 @@ export const stringConstants = {
   tokenRefreshFailed:"Token refresh failed.",
   socketNotInitialized:"WebSocket is not initialized.",
   webSocketTimeOut:"WebSocket connection timed out.",
+  softwareCausedAbort:"Software caused connection abort",
   };
 
 

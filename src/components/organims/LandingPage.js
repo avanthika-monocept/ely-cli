@@ -31,27 +31,31 @@ export const LandingPage = memo(({
   historyLoading,
 }) => {
   let scrollViewRef = null;
-  const firstName=reconfigApiResponse?.userInfo?.userName?.split(" ")[0]
+  const rawName = reconfigApiResponse?.userInfo?.userName?.split(" ")?.[0] ?? "";
+  const firstName = rawName.length > 0 ? rawName[0].toUpperCase() + rawName.slice(1).toLowerCase() : "";
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <KeyboardAvoidingView
         style={{ flex: flex.one }}
         behavior={Platform.OS === platformName.ios && "padding"}
         keyboardVerticalOffset={100}
+        accessible={false}
       >
         <LinearGradient
           colors={colors.gradient.others.landingPageGradient}
           start={{ x: 0.2, y: 0 }}
           end={{ x: -0.3, y: 1 }}
           style={styles.chatBodyContainer}
+          accessible={false}
         >
           {hasMore && !historyLoading &&
           <TouchableOpacity
+              accessible={true}
               style={styles.recentConvoBtn}
               onPress={() => setnavigationPage(stringConstants.agenda)}
             >
               <Timer width={20} height={20} style={{marginRight: spacing.space_s1}}/>
-              <Text style={styles.recentConvoText}>{stringConstants.showRecentConversations}</Text>
+              <Text style={styles.recentConvoText} testID="recent-convo-text" accessible={true}>{stringConstants.showRecentConversations}</Text>
             </TouchableOpacity>}
             <View style={styles.infoLandingScreen}>
             <ToastMessage visible={true} title={""} message={stringConstants.infoLandingScreen} actions={[]} type={"info"}/>
@@ -67,26 +71,27 @@ export const LandingPage = memo(({
                 scrollViewRef.scrollToEnd({ animated: true });
               }
             }}
+            accessible={false}
           >
-           <View style={styles.textContainer}>
-              <Text style={styles.hiTextStyle}>
+           <View style={styles.textContainer} accessible={false}>
+              <Text testID="greeting-text" style={styles.hiTextStyle} accessible={true}>
                 {stringConstants.hiThere}{" "}
                 {firstName}
                 {stringConstants.hiName}
               </Text>
-              <View style={{ marginTop: spacing.space_base }}>
-                <Text style={styles.hiTextStyle}>
+              <View style={{ marginTop: spacing.space_base }} accessible={false}>
+                <Text style={styles.hiTextStyle} accessible={true}>
                   {stringConstants.gotQuestion}
                 </Text>
-                <Text style={styles.hiTextStyle}>
+                <Text style={styles.hiTextStyle} accessible={true}>
                   {stringConstants.hereToHelp}
                 </Text>
               </View>
             </View>
  
-            <View style={styles.bottomContainer}>
-              <View style={styles.suggestedBtn}>
-                <Text style={styles.btnText}>{stringConstants.suggested}</Text>
+            <View style={styles.bottomContainer} accessible={false}>
+              <View style={styles.suggestedBtn} accessible={false}>
+                <Text testID="suggested-label" style={styles.btnText} accessible={true}>{stringConstants.suggested}</Text>
               </View>
               <SuggestionList
                 socket={socket}
