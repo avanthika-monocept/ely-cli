@@ -181,7 +181,7 @@ import { useNetInfo } from "@react-native-community/netinfo";
             style={[
               styles.container,
               {
-                marginBottom: Platform.OS == 'android' ?  keyboardHeight > 100 ? keyboardHeight - 30 : 0 : keyboardHeight > 100 ? 40 : 0,
+                marginBottom: Platform.OS == 'android' ?  keyboardHeight > 100 ? keyboardHeight - 29 : 0 : keyboardHeight > 100 ? 40 : 0,
               },
             ]}
           >

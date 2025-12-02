@@ -57,9 +57,7 @@ export const LandingPage = memo(({
               <Timer width={20} height={20} style={{marginRight: spacing.space_s1}}/>
               <Text style={styles.recentConvoText} testID="recent-convo-text" accessible={true}>{stringConstants.showRecentConversations}</Text>
             </TouchableOpacity>}
-            <View style={styles.infoLandingScreen}>
-            <ToastMessage visible={true} title={""} message={stringConstants.infoLandingScreen} actions={[]} type={"info"}/>
-            </View>
+         
           <ScrollView
             contentContainerStyle={styles.scrollContent}
             keyboardShouldPersistTaps="handled"
@@ -126,7 +124,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: flex.one,
     justifyContent: "space-between",
-    paddingTop: size.twenty_4,
+    paddingTop: size.thirtyTwoPercent,
   },
   textContainer: {
     alignSelf: "center",
@@ -171,10 +169,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: colors.primaryColors.charcoalGray,
   },
-  infoLandingScreen: {
-    marginBottom: spacing.space_m2,
-    marginTop: spacing.space_m2,
-  },
+  
 });
  
 export default LandingPage;

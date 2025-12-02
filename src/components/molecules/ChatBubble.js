@@ -5,6 +5,7 @@ import {
   TouchableWithoutFeedback,
   Text,
   Platform,
+  Image,
 } from 'react-native';
 import {LinearGradient} from 'react-native-linear-gradient';
 import BotTail from '../../../assets/BotBubbleTail.svg';
@@ -40,7 +41,8 @@ import {
 } from '../../constants/StringConstants';
 import {encryptSocketPayload} from '../../common/cryptoUtils';
 import {useNetInfo} from '@react-native-community/netinfo';
- 
+import Like from '../../../assets/Like.png';
+
 const ChatBubble = React.memo(
   ({
     isBot,
@@ -82,12 +84,12 @@ const ChatBubble = React.memo(
       dispatch(updateActivity({messageId: messageId, activity: id}));
     };
     const RotatedThumb = React.memo(() => (
-      <Text style={{transform: [{rotate: '180deg'}]}}>👍</Text>
+      <Image style={{transform: [{rotate: '180deg'}]}} source={Like} />
     ));
  
     const reactionOptions = useMemo(
       () => [
-        {id: 'like', svg: <Text>👍</Text>},
+        {id: 'like', svg: <Image source={Like} />},
         {id: 'dislike', svg: <RotatedThumb />},
       ],
       [],

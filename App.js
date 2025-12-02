@@ -33,7 +33,7 @@ export default function App(props) {
     if (Platform.OS === 'android') {
       const onKeyboardShow = () => {
         Animated.timing(keyboardOffset, {
-          toValue: -30,
+          toValue: -22,
           duration: 250,
           easing: Easing.out(Easing.ease),
           useNativeDriver: true,
