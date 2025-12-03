@@ -27,7 +27,7 @@ import { splitMarkdownIntoTableAndText, formatBotMessage, formatHistoryMessage }
 import { platformName, socketConstants, stringConstants, timeoutConstants } from "../../constants/StringConstants";
 import VideoLoader from "../atoms/VideoLoader";
 import { validateJwtToken } from "../../config/api/ValidateJwtToken";
-import { WEBSOCKET_BASE_URL } from "../../constants/constants";
+import {getWebSocketBaseUrl} from "../../constants/constants";
 import PropTypes from "prop-types";
 import { CHAT_MESSAGE_PROXY } from "../../config/apiUrls";
 import { encryptSocketPayload, decryptSocketPayload } from "../../common/cryptoUtils";
@@ -37,7 +37,8 @@ export const ChatPage = ({ route }) => {
   const {
     jwtToken,
     userInfo,
-    platform
+    platform,
+    env="uat",
   } = route?.params || {};
  const MAX_TOKEN_RETRIES = 1;
   const dispatch = useDispatch();
@@ -191,7 +192,7 @@ export const ChatPage = ({ route }) => {
 
     try {
       sethistoryLoading(true);
-      const newMessages = await fetchChatHistory(agentId, page, message, currentToken, tokenExpiryRetryCountRef.current,platform);
+      const newMessages = await fetchChatHistory(agentId, page, message, currentToken, tokenExpiryRetryCountRef.current,platform,env);
       if (!newMessages || newMessages.length === 0) {
         setHasMore(false);
         sethistoryLoading(false);
@@ -240,8 +241,7 @@ export const ChatPage = ({ route }) => {
     }
   };
   const connectWebSocket = (agentId, token) => {
-    const WEBSOCKET_URL = `${WEBSOCKET_BASE_URL}${agentId}&Auth=${token}&platform=${platform}`;
-
+     const WEBSOCKET_URL = `${getWebSocketBaseUrl(env)}${agentId}&Auth=${token}&platform=${platform}`;
     if (!agentId || !token) {
       console.error(stringConstants.agentIdOrTokenMissing);
       return;
@@ -260,7 +260,7 @@ export const ChatPage = ({ route }) => {
         const data = JSON.parse(event.data);
         // Handle encrypted payload
         if (data.payload) {
-          const decryptedData = decryptSocketPayload(data);
+          const decryptedData = decryptSocketPayload(data,env);
           if (decryptedData.type === socketConstants.error) {
             handleErrorMessage(decryptedData);
           }
@@ -360,7 +360,7 @@ export const ChatPage = ({ route }) => {
         emailId: currentConfig?.userInfo?.email,
         platform: currentConfig?.theme?.platform,
       };
-      const encryptedPayload = encryptSocketPayload(payload);
+      const encryptedPayload = encryptSocketPayload(payload, env);
       const finalPayload = {
         action: CHAT_MESSAGE_PROXY,
         token: token,
@@ -382,7 +382,8 @@ export const ChatPage = ({ route }) => {
           role: userInfo?.role,
           firebaseId: userInfo?.firebaseId,
           deviceId: userInfo?.deviceId,
-        }
+        },
+        env
       );
       if (!validationResponse || validationResponse.status !== stringConstants.success) {
         throw new Error(stringConstants.tokenValidationFailed);
@@ -673,12 +674,13 @@ export const ChatPage = ({ route }) => {
             token={token}
             hasMore={hasMore}
             historyLoading={historyLoading}
+            env={env}
           />
         )}
         {!isInitializing && navigationPage !== stringConstants.coach && (
           <ChatBody
             scrollViewRef={scrollViewRef}
-
+            env={env}
             handleScroll={handleScroll}
             setDropDownType={setDropDownType}
             setMessageObjectId={setMessageObjectId}
@@ -735,7 +737,7 @@ export const ChatPage = ({ route }) => {
         reconfigApiResponse={reconfigApiResponse}
         messages={messages}
         copyToClipboard={copyToClipboard}
-
+        env={env}
         scrollToDown={scrollToDown}
         inactivityTimer={inactivityTimer}
         setInactivityTimer={setInactivityTimer}

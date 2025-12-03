@@ -29,6 +29,7 @@ export const LandingPage = memo(({
   token,
   hasMore,
   historyLoading,
+  env,
 }) => {
   let scrollViewRef = null;
   const rawName = reconfigApiResponse?.userInfo?.userName?.split(" ")?.[0] ?? "";
@@ -97,6 +98,7 @@ export const LandingPage = memo(({
                 reconfigApiResponse={reconfigApiResponse}
                 startResponseTimeout={startResponseTimeout}
                 token={token}
+                env={env}
               />
             </View>
           </ScrollView>
@@ -114,6 +116,7 @@ LandingPage.propTypes = {
   token: PropTypes.string,
   hasMore: PropTypes.bool,
   historyLoading: PropTypes.bool,
+  env: PropTypes.string.isRequired,
 };
  
 const styles = StyleSheet.create({

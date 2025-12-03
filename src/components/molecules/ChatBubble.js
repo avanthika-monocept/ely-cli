@@ -67,6 +67,7 @@ const ChatBubble = React.memo(
     setReplyIndex,
     replyIndex,
     activity,
+    env,
   }) => {
     const LONG_PRESS_THRESHOLD = 500;
     const [isOpen, setIsOpen] = useState(false);
@@ -128,7 +129,7 @@ const ChatBubble = React.memo(
       dispatch(addMessage(message));
       const action = socketPayload.action;
       const payload = socketPayload.message;
-      const encryptedPayload = encryptSocketPayload(payload);
+      const encryptedPayload = encryptSocketPayload(payload,env);
       const finalPayload = {
         action,
         payload: encryptedPayload,
@@ -310,6 +311,7 @@ const ChatBubble = React.memo(
                 agentId={reconfigApiResponse?.userInfo?.agentId}
                 platform={reconfigApiResponse?.theme?.platform}
                 activity={activity}
+                env={env}
               />
             </View>
           )}
@@ -341,6 +343,7 @@ ChatBubble.propTypes = {
   setReplyIndex: PropTypes.func,
   replyIndex: PropTypes.number,
   activity: PropTypes.string,
+  env: PropTypes.string.isRequired,
 };
 const styles = StyleSheet.create({
   chatBubbleContainer: {

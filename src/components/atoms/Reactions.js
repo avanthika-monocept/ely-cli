@@ -13,7 +13,8 @@ export const Reactions = ({
   agentId,
   platform,
   socket,
-  activity
+  activity,
+  env,
 }) => {
   const [selected, setSelected] = useState(activity || null);
   const handleSelect = (id) => {
@@ -29,7 +30,7 @@ export const Reactions = ({
         messageId: messageId,
         userId: agentId,
       }
-    const encryptedPayload = encryptSocketPayload(message);
+    const encryptedPayload = encryptSocketPayload(message,env);
     const finalPayload = {
       action: CHAT_MESSAGE_PROXY,
       payload: encryptedPayload
@@ -86,6 +87,7 @@ Reactions.propTypes = {
   socket: PropTypes.object,
   platform: PropTypes.string,
   activity: PropTypes.string,
+  env: PropTypes.string.isRequired,
 };
 const styles = StyleSheet.create({
   container: {

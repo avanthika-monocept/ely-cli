@@ -39,7 +39,8 @@ import { useNetInfo } from "@react-native-community/netinfo";
   cleanupWebSocket,
   clearResponseTimeout,
   keyboardHeight,
-  setKeyboardHeight
+  setKeyboardHeight,
+  env,
 }) => {
   const netInfo = useNetInfo();
   const dispatch = useDispatch();
@@ -116,7 +117,7 @@ import { useNetInfo } from "@react-native-community/netinfo";
       const { message, socketPayload } = formatUserMessage(value, reconfigApiResponse, messageType, replyMessageId, replyIndex, status);
       const action = socketPayload.action;
       const payload = socketPayload.message;
-      const encryptedPayload = encryptSocketPayload(payload);
+      const encryptedPayload = encryptSocketPayload(payload,env);
       const finalPayload = {
         action,
         payload: encryptedPayload
@@ -239,7 +240,8 @@ ChatFooter.propTypes = {
   cleanupWebSocket: PropTypes.func,
   clearResponseTimeout: PropTypes.func,
   keyboardHeight: PropTypes.number,
-  setKeyboardHeight: PropTypes.func
+  setKeyboardHeight: PropTypes.func,
+    env: PropTypes.string.isRequired,
 };
 const styles = StyleSheet.create({
   containerHead: {

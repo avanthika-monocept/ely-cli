@@ -1,7 +1,11 @@
+// store/actions.js
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import apiCall from "../config/axiosRequest";
 import { USER_CONFIG } from "../config/apiUrls";
-import { baseUrl, X_API_KEY } from "../constants/constants";
+import {
+  getBaseUrl,
+  getXApiKey,
+} from "../constants/constants";
 import { encNewPayload, decResPayload } from "../common/cryptoUtils";
 
 const MAX_TOKEN_RETRIES = 1;
@@ -9,28 +13,35 @@ const MAX_TOKEN_RETRIES = 1;
 export const getData = createAsyncThunk(
   "getData",
   async (data, { rejectWithValue }) => {
-    const { callback = () => {}, token, agentId, platform, retryCount = 0 } = data;
+    const {
+      callback = () => {},
+      token,
+      agentId,
+      platform,
+      env,
+      retryCount = 0,
+    } = data;
 
     try {
       const rawPayload = { agentId, platform };
-      const encryptedPayload = encNewPayload(rawPayload);
+      const encryptedPayload = encNewPayload(rawPayload, env);
 
       const apiResponse = await apiCall({
-        baseURL: baseUrl,
+        baseURL: getBaseUrl(env),
         url: USER_CONFIG,
         method: "POST",
         headers: {
           Authorization: "dummy",
-          "x-api-key": X_API_KEY,
+          "x-api-key": getXApiKey(env),
           userId: agentId,
           elyAuthToken: token,
-          "platform"  : platform,
+          platform,
         },
         data: encryptedPayload,
       });
 
       if (apiResponse?.payload) {
-        const response = decResPayload(apiResponse.payload);
+        const response = decResPayload(apiResponse.payload, env);
         if (response?.error) {
           return rejectWithValue("API Error");
         }

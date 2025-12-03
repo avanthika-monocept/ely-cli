@@ -20,6 +20,7 @@ export const SuggestionList = ({
   setnavigationPage,
   reconfigApiResponse,
   socket,
+  env,
   }) => {
  const netInfo = useNetInfo();
   const dispatch = useDispatch();
@@ -39,7 +40,7 @@ export const SuggestionList = ({
     dispatch(addMessage(message));
     const action = socketPayload.action;
     const payload = socketPayload.message;
-    const encryptedPayload = encryptSocketPayload(payload);
+    const encryptedPayload = encryptSocketPayload(payload,env);
     const finalPayload = {
       action,
       payload: encryptedPayload
@@ -90,6 +91,7 @@ SuggestionList.propTypes = {
   setnavigationPage: PropTypes.func.isRequired,
   reconfigApiResponse: PropTypes.object.isRequired,
   socket: PropTypes.object,
+  env: PropTypes.string.isRequired,
 };
 const styles = StyleSheet.create({
   mainContainer: {

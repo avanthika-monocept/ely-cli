@@ -1,58 +1,55 @@
 import CryptoJS from "crypto-js";
-import { ENCRYPT_KEY_VALUE, ENCRYPT_IV_VALUE_ } from "../constants/constants";
+import { getEncryptKeyAndIv } from "../constants/constants";
 
-
-const encrypt = (data1, keyValue, ivValue) => {
+const encryptInternal = (data, keyValue, ivValue) => {
   const key = CryptoJS.enc.Latin1.parse(keyValue);
   const iv = CryptoJS.enc.Latin1.parse(ivValue);
 
-  const dataToEncrypt = typeof data1 === 'string' ? data1 : JSON.stringify(data1);
+  const dataToEncrypt = typeof data === "string" ? data : JSON.stringify(data);
   const encrypted = CryptoJS.AES.encrypt(dataToEncrypt, key, {
-    iv: iv,
+    iv,
     mode: CryptoJS.mode.CBC,
     padding: CryptoJS.pad.ZeroPadding,
   });
 
-  const encryptedString = encrypted.toString();
-  return encryptedString;
+  return encrypted.toString();
 };
 
-const decrypt = (encrypted, keyValue, ivValue) => {
+const decryptInternal = (encrypted, keyValue, ivValue) => {
   const key = CryptoJS.enc.Latin1.parse(keyValue);
   const iv = CryptoJS.enc.Latin1.parse(ivValue);
   const decrypted = CryptoJS.AES.decrypt(encrypted.trim(), key, {
-    iv: iv,
+    iv,
     padding: CryptoJS.pad.Pkcs7,
   });
   return decrypted.toString(CryptoJS.enc.Utf8);
 };
 
-export const encNewPayload = (rawPayload) => {
-  const newPayload = {
-    payload: encrypt(rawPayload, ENCRYPT_KEY_VALUE, ENCRYPT_IV_VALUE_),
+export const encNewPayload = (rawPayload, env) => {
+  const { key, iv } = getEncryptKeyAndIv(env);
+  return {
+    payload: encryptInternal(rawPayload, key, iv),
   };
-  return newPayload;
 };
 
-export const decResPayload = (resPayload) => {
-  let decryptedRes = decrypt(resPayload, ENCRYPT_KEY_VALUE, ENCRYPT_IV_VALUE_);
-  // Trim non-printable characters from the end
+export const decResPayload = (resPayload, env) => {
+  const { key, iv } = getEncryptKeyAndIv(env);
+  let decryptedRes = decryptInternal(resPayload, key, iv);
   decryptedRes = decryptedRes.replace(/[^\x20-\x7E]+$/, "");
-  const decryptedResponseObject = JSON.parse(decryptedRes);
-  return decryptedResponseObject;
+  return JSON.parse(decryptedRes);
 };
 
-export const encryptSocketPayload = (payload) => {
-  const encryptedMessage = encrypt(payload, ENCRYPT_KEY_VALUE, ENCRYPT_IV_VALUE_);
-  return encryptedMessage;
+export const encryptSocketPayload = (payload, env) => {
+  const { key, iv } = getEncryptKeyAndIv(env);
+  return encryptInternal(payload, key, iv);
 };
 
-export const decryptSocketPayload = (encryptedPayload) => {
+export const decryptSocketPayload = (encryptedPayload, env) => {
   try {
+    const { key, iv } = getEncryptKeyAndIv(env);
     const { payload } = encryptedPayload;
-    const decrypted = decrypt(payload, ENCRYPT_KEY_VALUE, ENCRYPT_IV_VALUE_);
-    const parsed = JSON.parse(decrypted);
-    return parsed;
+    const decrypted = decryptInternal(payload, key, iv);
+    return JSON.parse(decrypted);
   } catch (error) {
     console.error("WebSocket decryption failed:", error);
     return encryptedPayload;
