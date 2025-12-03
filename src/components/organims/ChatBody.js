@@ -45,6 +45,7 @@ const MessageItem = React.memo(
     socket,
     reconfigApiResponse,
     setCopied,
+    env,
   }) => {
     const replyMessageObj = React.useMemo(
       () =>
@@ -112,6 +113,7 @@ const MessageItem = React.memo(
           socket={socket}
           reconfigApiResponse={reconfigApiResponse}
           setCopied={setCopied}
+          env={env}
         />
       </Animated.View>
     );
@@ -131,6 +133,7 @@ MessageItem.propTypes = {
   socket: PropTypes.object,
   reconfigApiResponse: PropTypes.object.isRequired,
   setCopied: PropTypes.func.isRequired,
+  env: PropTypes.string,
 };
 const ChatBody = React.memo(
   ({
@@ -150,6 +153,7 @@ const ChatBody = React.memo(
     historyLoading,
     hasMore,
     handleScrollEnd,
+    env,
   }) => {
     ChatBody.propTypes = {
       scrollViewRef: PropTypes.object.isRequired,
@@ -168,6 +172,7 @@ const ChatBody = React.memo(
       historyLoading: PropTypes.bool,
       hasMore: PropTypes.bool,
       handleScrollEnd: PropTypes.func,
+      env: PropTypes.string,
     };
     const netInfo = useNetInfo();
     const dispatch = useDispatch();
@@ -309,7 +314,7 @@ const ChatBody = React.memo(
         },
       };
       if (socket && socket.readyState === WebSocket.OPEN) {
-        const encryptedPayload = encryptSocketPayload(retryPayload.message);
+        const encryptedPayload = encryptSocketPayload(retryPayload.message,env);
         const finalPayload = {
           action: CHAT_MESSAGE_PROXY,
           token: token,
@@ -381,6 +386,7 @@ const ChatBody = React.memo(
             socket={socket}
             reconfigApiResponse={reconfigApiResponse}
             setCopied={setCopied}
+            env={env}
           />
         );
       },
