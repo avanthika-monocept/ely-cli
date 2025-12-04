@@ -29,7 +29,7 @@ const MarkdownComponent = ({markdownText, setDropDownType, isBot}) => {
   const handleLinkPress = async (url) => {
     if (isLongPressTriggered.current) return;
     try {
-      const supported = await Linking.canOpenURL(url);
+      const supported = await Linking.openURL(url);
       if (supported) {
         Linking.openURL(url);
       } else {

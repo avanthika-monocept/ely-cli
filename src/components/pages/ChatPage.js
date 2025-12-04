@@ -39,7 +39,7 @@ export const ChatPage = ({ route }) => {
     userInfo,
     platform,
     env="uat",
-  } = route?.params || {};
+  } = { jwtToken: "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzc29JZCI6IlNLTUFINTExOSIsImF1ZCI6InN1cGVyX2FwcF9jbGllbnQiLCJ1c2VyRGV0YWlscyI6IlNLTUFINTExOV9BRE0iLCJpYXQiOjE3NjQ4Mjg5MTEsImV4cCI6MTc2NDkxNTMxMX0.7Oo-Ylkf_Epv4GXislwnkemRdx1RKVvsFqePLHVOLx5jrYjDm1R2WurwlJH6PEKDW5EMaOPpuv7QyKVNgOqwww", platform: "MSPACE", userInfo: { agentId: "SKMAH5119", deviceId: "d29b3dbd9671ad50", email: "sachin.kalel@maxlifeinsurance.com", firebaseId: undefined, role: "ADM", userName: "Sachin Kalel" } };
  const MAX_TOKEN_RETRIES = 1;
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -448,7 +448,7 @@ export const ChatPage = ({ route }) => {
         }
       }
       // 🔹 fetch user config
-      const response = await dispatch(getData({ token: newToken, agentId: agentIdToSend?.toLowerCase(), platform, retryCount: tokenExpiryRetryCountRef.current, })).unwrap();
+      const response = await dispatch(getData({ token: newToken, agentId: agentIdToSend?.toLowerCase(),env,platform, retryCount: tokenExpiryRetryCountRef.current, })).unwrap();
       if (response && response.userInfo?.agentId) {
         setnavigationPage(response.statusFlag);
         setReconfigApiResponse(prev => ({ ...prev, ...response }));
