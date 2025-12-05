@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   },
   placeholderText: {
     position: "absolute",
-    top: spacing.space_base,
+    top: Platform.OS === "ios" ? spacing.space_10 : spacing.space_base,
     left: spacing.space_m1,
     color: colors.darkNeutrals.n600,
     ...fontStyle.bodyMedium,
