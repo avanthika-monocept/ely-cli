@@ -57,6 +57,8 @@ const ChatBubble = React.memo(({
   replyIndex,
   activity,
   env,
+  botCommunicationFlow,
+  removeUnreadMessage,
 }) => {
   const LONG_PRESS_THRESHOLD = 500;
   const [isOpen, setIsOpen] = useState(false);
@@ -71,10 +73,10 @@ const ChatBubble = React.memo(({
   const handleSelection = (id, messageId) => {
     dispatch(updateActivity({ messageId: messageId, activity: id }));
   };
- const RotatedThumb = React.memo(() => (
+  const RotatedThumb = React.memo(() => (
       <Image style={{transform: [{rotate: '180deg'}]}} source={Like} />
-    ));
- 
+  ));
+
     const reactionOptions = useMemo(
       () => [
         {id: 'like', svg: <Image source={Like} />},
@@ -103,6 +105,7 @@ const ChatBubble = React.memo(({
     }
   };
   const handleFeedbackSelect = (feedback) => {
+    removeUnreadMessage();
     setSelectedFeedback(feedback);
     const status = getMessageStatus(netInfo, socket);
     const { message, socketPayload } = formatUserMessage(
@@ -258,7 +261,6 @@ const ChatBubble = React.memo(({
               <MarkdownComponent
                 markdownText={textPart}
                 setCopied={setCopied}
-                  isBot={isBot}
               />
               <View style={styles.footer}>
                 <TimeAndTick
@@ -277,7 +279,7 @@ const ChatBubble = React.memo(({
             </View>
           </View>
         )}
-        {isBot && !isLoader && (
+        {isBot && !isLoader && botCommunicationFlow !== "AGENDA" && (
           <View style={styles.reactionsContainer}>
             <Reactions
               options={reactionOptions}
@@ -319,6 +321,8 @@ ChatBubble.propTypes = {
   replyIndex: PropTypes.number,
   activity: PropTypes.string,
   env: PropTypes.string.isRequired,
+  botCommunicationFlow: PropTypes.string,
+  removeUnreadMessage: PropTypes.func.isRequired,
 };
 const styles = StyleSheet.create({
   chatBubbleContainer: {

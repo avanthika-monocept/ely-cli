@@ -23,6 +23,7 @@ import { CHAT_MESSAGE_PROXY } from "../../config/apiUrls";
 import { useNetInfo } from "@react-native-community/netinfo";
 import { getMessageStatus } from "../../common/utils";
 import { retryMessage, updateMessageStatus } from "../../store/reducers/chatSlice";
+import UnreadMessageBanner from "../atoms/UnreadMessageBanner";
 
 const MessageItem = React.memo(({
   item,
@@ -39,6 +40,7 @@ const MessageItem = React.memo(({
   reconfigApiResponse,
   setCopied,
   env,
+  removeUnreadMessage,
 }) => {
   const replyMessageObj = React.useMemo(() =>
     item?.replyId ? messages.find((msg) => msg?.messageId === item.replyId) : null,
@@ -103,6 +105,8 @@ const MessageItem = React.memo(({
         reconfigApiResponse={reconfigApiResponse}
         setCopied={setCopied}
         env={env}
+        botCommunicationFlow={item?.botCommunicationFlow}
+        removeUnreadMessage={removeUnreadMessage}
       />
     </Animated.View>
   );
@@ -122,7 +126,8 @@ MessageItem.propTypes = {
   socket: PropTypes.object,
   reconfigApiResponse: PropTypes.object.isRequired,
   setCopied: PropTypes.func.isRequired,
-  env: PropTypes.string,
+  env: PropTypes.string.isRequired,
+  removeUnreadMessage: PropTypes.func.isRequired,
 };
 const ChatBody = React.memo(({
   scrollViewRef,
@@ -142,6 +147,9 @@ const ChatBody = React.memo(({
   hasMore,
   handleScrollEnd,
   env,
+  unreadCount,
+  firstUnreadMessageId,
+  removeUnreadMessage,
 }) => {
   ChatBody.propTypes = {
     scrollViewRef: PropTypes.object.isRequired,
@@ -160,7 +168,10 @@ const ChatBody = React.memo(({
     historyLoading: PropTypes.bool,
     hasMore: PropTypes.bool,
     handleScrollEnd: PropTypes.func,
-      env: PropTypes.string,
+    env: PropTypes.string.isRequired,
+    unreadCount: PropTypes.number,
+    firstUnreadMessageId: PropTypes.string,
+    removeUnreadMessage: PropTypes.func.isRequired,
   };
 const netInfo = useNetInfo();
 const dispatch = useDispatch();
@@ -181,35 +192,29 @@ const dispatch = useDispatch();
     }
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   }, []);
-  const formatSeparatorDate = (dateObj) => {
-    const today = new Date();
-    const yesterday = new Date();
-    yesterday.setUTCDate(today.getUTCDate() - 1);
-    const todayStr = new Date(
-      Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())
-    ).toUTCString();
-    const yestStr = new Date(
-      Date.UTC(
-        yesterday.getUTCFullYear(),
-        yesterday.getUTCMonth(),
-        yesterday.getUTCDate()
-      )
-    ).toUTCString();
-    const inputDate = new Date(
-      Date.UTC(
-        dateObj.getUTCFullYear(),
-        dateObj.getUTCMonth(),
-        dateObj.getUTCDate()
-      )
-    );
-    const inputDateStr = inputDate.toUTCString();
-    if (inputDateStr === todayStr) return stringConstants.Today;
-    if (inputDateStr === yestStr) return stringConstants.Yesterday;
-    const day = String(dateObj.getUTCDate()).padStart(2, "0");
-    const month = String(dateObj.getUTCMonth() + 1).padStart(2, "0");
-    const year = dateObj.getUTCFullYear();
-    return `${day}/${month}/${year}`;
-  };
+const formatSeparatorDate = (dateObj) => {
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+
+  const isSameDay = (d1, d2) =>
+    d1.getDate() === d2.getDate() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getFullYear() === d2.getFullYear();
+
+  if (isSameDay(dateObj, today)) return stringConstants.Today;
+  if (isSameDay(dateObj, yesterday)) return stringConstants.Yesterday;
+
+  const weekday = dateObj.toLocaleDateString("en-US", { weekday: "long" });
+  const day = dateObj.getDate(); // 5
+  const month = dateObj
+    .toLocaleDateString("en-US", { month: "short" })
+    .toLowerCase(); // feb
+
+  return `${weekday}, ${day} ${month}`;
+};
+ 
+
   const generateChatDataWithSeparators = useCallback((messages = []) => {
     const result = [];
     const sortedMessages = [...messages].sort((a, b) => {
@@ -265,9 +270,24 @@ const dispatch = useDispatch();
     }
     return result;
   }, []);
-  const chatWithSeparators = React.useMemo(() => {
-    return generateChatDataWithSeparators(messages);
-  }, [messages]);
+const chatWithSeparators = React.useMemo(() => {
+  const base = generateChatDataWithSeparators(messages); // already sorted oldest→newest
+  if (!firstUnreadMessageId) return base;
+
+  const idx = base.findIndex(
+    item => item.type === "message" && item.messageId === firstUnreadMessageId
+  );
+  if (idx === -1) return base;
+
+  const clone = [...base];
+  clone.splice(idx, 0, {
+    id: `unread-separator-${firstUnreadMessageId}`,
+    type: "unread_separator",
+    count: unreadCount,
+  });
+  return clone;
+}, [messages, firstUnreadMessageId, unreadCount]);
+
   const retrySendMessage = (messageId) => {
     const messageToRetry = messages.find(msg => msg.messageId === messageId);
     if (!messageToRetry) return;
@@ -322,6 +342,12 @@ const dispatch = useDispatch();
         </View>
       );
     }
+     if (item.type === "unread_separator") {
+    if (!item.count) return null;
+    return (
+     <UnreadMessageBanner count={item.count} />
+    );
+  }
     if (item.type === "inline_error_toast") {
       const showRetry = item.showRetry;
       return (
@@ -350,6 +376,7 @@ const dispatch = useDispatch();
         item={item}
         index={index}
         messages={messages}
+        env={env}
         formatTime={formatTime}
         setDropDownType={setDropDownType}
         setMessageObjectId={setMessageObjectId}
@@ -360,7 +387,7 @@ const dispatch = useDispatch();
         socket={socket}
         reconfigApiResponse={reconfigApiResponse}
         setCopied={setCopied}
-            env={env}
+        removeUnreadMessage={removeUnreadMessage}
       />
     );
   }, [
@@ -374,7 +401,8 @@ const dispatch = useDispatch();
     copyToClipboard,
     socket,
     reconfigApiResponse,
-    setCopied
+    setCopied,
+    removeUnreadMessage,
   ]);
 
   return (
@@ -443,5 +471,7 @@ const styles = StyleSheet.create({
     padding: spacing.space_s3,
     alignItems: "flex-end",
   },
+
+
 });
 export default ChatBody;

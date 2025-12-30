@@ -5,11 +5,13 @@ import colors from "../../constants/Colors";
 import { fontStyle } from "../../constants/Fonts";
 import PropTypes from "prop-types";
 import ElyUpdatedLogo from "../../../assets/ElyUpdatedLogo.svg";
+import { useNetInfo } from "@react-native-community/netinfo";
 const Avatar = ({ botName }) => {
   Avatar.propTypes = {
     botName: PropTypes.string,
   };
-  const onlineStatus = true;
+  const netInfo = useNetInfo();
+  const onlineStatus = netInfo.isConnected;
   return (
     <View style={styles.avatarContainer}>
       <View style={styles.avatarWrapper}>
@@ -66,7 +68,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primaryColors.green,
   },
   offline: {
-    backgroundColor: colors.primaryColors.red,
+    backgroundColor: colors.secondaryColors.punch,
   },
   avatarText: {
     ...fontStyle.bodyBold0,

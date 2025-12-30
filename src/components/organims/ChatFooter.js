@@ -41,6 +41,7 @@ import { useNetInfo } from "@react-native-community/netinfo";
   keyboardHeight,
   setKeyboardHeight,
   env,
+  removeUnreadMessage,
 }) => {
   const netInfo = useNetInfo();
   const dispatch = useDispatch();
@@ -66,26 +67,28 @@ import { useNetInfo } from "@react-native-community/netinfo";
     }
   }, []);
 
-  useEffect(() => {
-    const clearPlaceholderInterval = setupDynamicPlaceholder(
-      placeHolders,
-      setDynamicPlaceholder,
-      3000,
-      isLoading,
-      reply
-    );
-    return () => clearPlaceholderInterval();
-  }, effectDependencies);
+useEffect(() => {
+  const clearPlaceholderInterval = setupDynamicPlaceholder(
+    placeHolders,
+    setDynamicPlaceholder,
+    3000,
+    isLoading,
+    reply
+  );
+  return () => clearPlaceholderInterval();
+}, effectDependencies);
   const handleChange = useCallback((text) => {
-    setValue(text);
-  }, []);
-  const resetReplyState = useCallback(() => {
-    setReply(false);
-    setReplyMessageId(null);
-  }, [setReply, setReplyMessageId]);
+  setValue(text);
+}, []);
+const resetReplyState = useCallback(() => {
+  setReply(false);
+  setReplyMessageId(null);
+}, [setReply, setReplyMessageId]);
 
   const handleSend = useCallback(async () => {
+    removeUnreadMessage();
     scrollToDown();
+    
     if (navigationPage == stringConstants.coach)
       if (!value.trim() || isLoading) return;
     if (isLoading) return;
@@ -126,52 +129,53 @@ import { useNetInfo } from "@react-native-community/netinfo";
       setValue("");
       socket.send(JSON.stringify(finalPayload));
       resetReplyState();
+      
     } catch (error) {
 
       dispatch(hideLoader());
       clearResponseTimeout();
     }
   }, [
-    value, isLoading, navigationPage, reconfigApiResponse,
-    reply, replyMessageId, replyIndex, messages,
-    socket, dispatch, resetReplyState, inactivityTimer,
-    setInactivityTimer, setnavigationPage, scrollToDown,
-    cleanupWebSocket, clearResponseTimeout
-  ]);
+  value, isLoading, navigationPage, reconfigApiResponse, 
+  reply, replyMessageId, replyIndex, messages,
+  socket, dispatch, resetReplyState, inactivityTimer,
+  setInactivityTimer, setnavigationPage, scrollToDown,
+  cleanupWebSocket, clearResponseTimeout, removeUnreadMessage
+]);
   const getReplyMessage = useCallback(() => {
-    const replyMessageObject = messages.find(
-      (msg) => msg?.messageId === replyMessageId
-    );
-    return {
-      text: replyMessageObject?.message?.text || replyMessageObject?.text || "",
-      messageTo: replyMessageObject?.messageTo,
-      media: replyMessageObject?.media || [],
-    };
-  }, [messages, replyMessageId]);
+  const replyMessageObject = messages.find(
+    (msg) => msg?.messageId === replyMessageId
+  );
+  return {
+    text: replyMessageObject?.message?.text || replyMessageObject?.text || "",
+    messageTo: replyMessageObject?.messageTo,
+    media: replyMessageObject?.media || [],
+  };
+}, [messages, replyMessageId]);
 
-  const replyData = useMemo(() => {
-    if (!reply) return null;
-    return getReplyMessage();
-  }, [reply, getReplyMessage]);
+const replyData = useMemo(() => {
+  if (!reply) return null;
+  return getReplyMessage();
+}, [reply, getReplyMessage]);
 
 
-  const replyComponent = useMemo(() => {
-    if (!reply || !replyData) return null;
-
-    return (
-      <ReplyMessage
-        replyFrom={
-          replyData?.messageTo?.toLowerCase() === stringConstants.bot ?
-            stringConstants.you : stringConstants.botCaps
-        }
-        replyMessage={replyData.text}
-        media={replyData.media}
-        reply={reply}
-        handleClose={handleReplyClose}
-        replyIndex={replyIndex}
-      />
-    );
-  }, [reply, replyData, handleReplyClose, replyIndex]);
+const replyComponent = useMemo(() => {
+  if (!reply || !replyData) return null;
+  
+  return (
+    <ReplyMessage
+      replyFrom={
+        replyData?.messageTo?.toLowerCase() === stringConstants.bot ? 
+        stringConstants.you : stringConstants.botCaps
+      }
+      replyMessage={replyData.text}
+      media={replyData.media}
+      reply={reply}
+      handleClose={handleReplyClose}
+      replyIndex={replyIndex}
+    />
+  );
+}, [reply, replyData, handleReplyClose, replyIndex]);
   let data = {};
   return (
     <View>
@@ -193,6 +197,7 @@ import { useNetInfo } from "@react-native-community/netinfo";
               placeholder={dynamicPlaceholder}
               rows={3}
               fullWidth
+             
             />
           </View>
           <View style={styles.buttonContainer}>
@@ -218,31 +223,32 @@ import { useNetInfo } from "@react-native-community/netinfo";
   );
 });
 ChatFooter.propTypes = {
-  copied: PropTypes.bool.isRequired,
-  dropDownType: PropTypes.string.isRequired,
-  setReplyMessageId: PropTypes.func.isRequired,
-  replyMessageId: PropTypes.string,
-  navigationPage: PropTypes.string.isRequired,
-  setnavigationPage: PropTypes.func.isRequired,
-  setReply: PropTypes.func.isRequired,
-  reply: PropTypes.bool.isRequired,
-  handleReplyClose: PropTypes.func.isRequired,
-  handleReplyMessage: PropTypes.func.isRequired,
-  reconfigApiResponse: PropTypes.object.isRequired,
-  socket: PropTypes.object,
-  messages: PropTypes.array,
-  copyToClipboard: PropTypes.func,
-  scrollToDown: PropTypes.func,
-  inactivityTimer: PropTypes.number,
-  setInactivityTimer: PropTypes.func,
-  replyIndex: PropTypes.number,
-  setCopied: PropTypes.func,
-  cleanupWebSocket: PropTypes.func,
-  clearResponseTimeout: PropTypes.func,
+    copied: PropTypes.bool.isRequired,
+    dropDownType: PropTypes.string.isRequired,
+    setReplyMessageId: PropTypes.func.isRequired,
+    replyMessageId: PropTypes.string,
+    navigationPage: PropTypes.string.isRequired,
+    setnavigationPage: PropTypes.func.isRequired,
+    setReply: PropTypes.func.isRequired,
+    reply: PropTypes.bool.isRequired,
+    handleReplyClose: PropTypes.func.isRequired,
+    handleReplyMessage: PropTypes.func.isRequired,
+    reconfigApiResponse: PropTypes.object.isRequired,
+    socket: PropTypes.object,
+    messages: PropTypes.array,
+    copyToClipboard: PropTypes.func,
+    scrollToDown: PropTypes.func,
+    inactivityTimer: PropTypes.number,
+    setInactivityTimer: PropTypes.func,
+    replyIndex: PropTypes.number,
+    setCopied: PropTypes.func,
+    cleanupWebSocket: PropTypes.func,
+    clearResponseTimeout: PropTypes.func,
   keyboardHeight: PropTypes.number,
   setKeyboardHeight: PropTypes.func,
     env: PropTypes.string.isRequired,
-};
+    removeUnreadMessage: PropTypes.func,
+  };
 const styles = StyleSheet.create({
   containerHead: {
     backgroundColor: colors.primaryColors.lightSurface,

@@ -90,12 +90,13 @@ export const getFormattedDividerDate = (dateString) => {
   };
   
     export const formatBotMessage = (data) => {
-  return {
+      return {
     messageId: data?.messageId,
     messageTo: stringConstants.user,
     dateTime: new Date().toISOString(),
     activity: null,
     replyId: null,
+    botCommunicationFlow : data?.status || null,
     conversationEnded: data?.conversationEnded,
     message: {
       text: data.entry?.message?.text,
@@ -119,6 +120,7 @@ export const formatUserMessage = (text, reconfigApiResponse, messageType,replyMe
       replyId: replyMessageId,
       replyIndex: replyIndex,
       messageType,
+      botCommunicationFlow : reconfigApiResponse?.statusFlag,
       message: {
         text: text.trim(),
         botOption: false,
@@ -179,6 +181,7 @@ export const formatHistoryMessage = (apiMessage) => {
     replyId:apiMessage.replyToMessageId, 
     conversationEnded: false, 
     status:  status,
+    botCommunicationFlow : apiMessage.botCommunicationFlow || null,
     message: {
       text: apiMessage.text,
       table: null, 

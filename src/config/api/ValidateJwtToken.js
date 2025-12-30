@@ -32,7 +32,6 @@ export const validateJwtToken = async (
 
     if (response?.payload) {
       const decryptedData = decResPayload(response.payload, env);
-      console.log("Decrypted validation response:", decryptedData);
       return decryptedData;
     }
 

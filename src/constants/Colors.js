@@ -58,6 +58,7 @@ const colors = {
     n80: "#CBCCD0",
     n70: "#DCDDE0",
     n60: "#EEEEEF",
+    n50:"#E8EBF1",
     selfTeam: "#3597EC",
   },
 

@@ -15,8 +15,8 @@ import FabFloatingButton from "../atoms/FabFloatingButton";
 import { LandingPage } from "../organims/LandingPage";
 import Clipboard from "@react-native-clipboard/clipboard";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
-import { useNavigation } from "@react-navigation/native";
 import { addChatHistory, clearMessages, addMessage, updateMessageStatus } from "../../store/reducers/chatSlice";
+import { useNavigation } from "@react-navigation/native";
 import { showLoader, hideLoader } from "../../store/reducers/loaderSlice";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getData } from "../../store/actions";
@@ -27,7 +27,7 @@ import { splitMarkdownIntoTableAndText, formatBotMessage, formatHistoryMessage }
 import { platformName, socketConstants, stringConstants, timeoutConstants } from "../../constants/StringConstants";
 import VideoLoader from "../atoms/VideoLoader";
 import { validateJwtToken } from "../../config/api/ValidateJwtToken";
-import {getWebSocketBaseUrl} from "../../constants/constants";
+import { getWebSocketBaseUrl } from "../../constants/constants";
 import PropTypes from "prop-types";
 import { CHAT_MESSAGE_PROXY } from "../../config/apiUrls";
 import { encryptSocketPayload, decryptSocketPayload } from "../../common/cryptoUtils";
@@ -40,7 +40,7 @@ export const ChatPage = ({ route }) => {
     platform,
     env="uat",
   } = route?.params || {};
- const MAX_TOKEN_RETRIES = 1;
+  const MAX_TOKEN_RETRIES = 1;
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const [copied, setCopied] = useState(false);
@@ -74,6 +74,8 @@ export const ChatPage = ({ route }) => {
     buttonText: "",
   });
   const [socket, setSocket] = useState(null);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [firstUnreadMessageId, setFirstUnreadMessageId] = useState(null);
   const messages = useSelector((state) => state.chat.messages, shallowEqual);
   const ws = useRef(null);
   const backgroundColor = reconfigApiResponse?.theme?.backgroundColor || colors.primaryColors.lightSurface;
@@ -201,6 +203,23 @@ export const ChatPage = ({ route }) => {
       const formattedMessages = newMessages?.content.map(msg =>
         formatHistoryMessage(msg)
       );
+      if(page == 0 && formattedMessages.length > 0){
+        const deliveredMessages = formattedMessages.filter(msg =>
+        msg?.messageTo === stringConstants.user &&
+        (msg?.status === socketConstants.delivered || msg?.status === socketConstants.received)
+      );
+      
+      if (deliveredMessages.length > 0) {
+        const sorted = [...deliveredMessages].sort((a, b) =>
+          new Date(a.dateTime || a.createdAt) - new Date(b.dateTime || b.createdAt)
+        );
+        setFirstUnreadMessageId(sorted[0].messageId);
+      } else {
+        setFirstUnreadMessageId(null);
+      }
+      setUnreadCount(deliveredMessages.length);
+    }
+      
       tokenExpiryRetryCountRef.current = 0;
       dispatch(addChatHistory(formattedMessages));
       setPage((prev) => prev + 1);
@@ -218,7 +237,7 @@ export const ChatPage = ({ route }) => {
           await loadChatHistory(agentId, page, message, refreshedToken, true);
         } catch (refreshError) {
           showErrorModalTokenExpiry();
-          }
+        }
       } else {
         // second time or other error
         setHasMore(false)
@@ -228,7 +247,7 @@ export const ChatPage = ({ route }) => {
   };
 
   const reconnectWebSocket = async () => {
-  try {
+    try {
       const agentId = reconfigApiResponseRef.current?.userInfo?.agentId;
       if (agentId && tokenRef.current) {
         connectWebSocket(agentId, tokenRef.current);
@@ -241,7 +260,7 @@ export const ChatPage = ({ route }) => {
     }
   };
   const connectWebSocket = (agentId, token) => {
-     const WEBSOCKET_URL = `${getWebSocketBaseUrl(env)}${agentId}&Auth=${token}&platform=${platform}`;
+    const WEBSOCKET_URL = `${getWebSocketBaseUrl(env)}${agentId}&Auth=${token}&platform=${platform}`;
     if (!agentId || !token) {
       console.error(stringConstants.agentIdOrTokenMissing);
       return;
@@ -298,7 +317,7 @@ export const ChatPage = ({ route }) => {
       console.log(`WebSocket closed: ${e.code} - ${e.reason}`);
 
       // Check closure is due to token expiry (1008 = policy violation, often token related)
-      if (e.code === 1008 || (e.code === 1006 && !e.reason === stringConstants.softwareCausedAbort)) {
+      if (e.code === 1008 || (e.code === 1006 && e.reason !== stringConstants.softwareCausedAbort)) {
         handleWebSocketTokenExpiry();
       }
 
@@ -325,10 +344,10 @@ export const ChatPage = ({ route }) => {
         if (error.message === stringConstants.platformTokenExpired || tokenExpiryRetryCountRef.current > MAX_TOKEN_RETRIES || error.message === stringConstants.tokenExpired) {
           showErrorModalTokenExpiry();
         }
-       }
+      }
     } else {
       showErrorModalTokenExpiry();
-      }
+    }
   };
   const cleanupWebSocket = (sendDisconnect = false) => {
     if (!ws.current) return;
@@ -392,7 +411,7 @@ export const ChatPage = ({ route }) => {
       const newToken = validationResponse?.data?.elyAuthToken;
       settoken(newToken);
       if (isInitialCall) {
-       tokenExpiryRetryCountRef.current = 0;
+        tokenExpiryRetryCountRef.current = 0;
       }
       return newToken;
     } catch (error) {
@@ -448,7 +467,7 @@ export const ChatPage = ({ route }) => {
         }
       }
       // 🔹 fetch user config
-      const response = await dispatch(getData({ token: newToken, agentId: agentIdToSend?.toLowerCase(),env,platform, retryCount: tokenExpiryRetryCountRef.current, })).unwrap();
+      const response = await dispatch(getData({ token: newToken, agentId: agentIdToSend?.toLowerCase(), platform, env, retryCount: tokenExpiryRetryCountRef.current, })).unwrap();
       if (response && response.userInfo?.agentId) {
         setnavigationPage(response.statusFlag);
         setReconfigApiResponse(prev => ({ ...prev, ...response }));
@@ -469,6 +488,7 @@ export const ChatPage = ({ route }) => {
       }
     } finally {
       setIsInitializing(false);
+      dispatch(hideLoader());
     }
   };
 
@@ -533,8 +553,15 @@ export const ChatPage = ({ route }) => {
           status: socketConstants.read,
         });
       });
+     
+      
     }
   }, [navigationPage, messages]);
+ 
+  const handleRemoveUnreadMessage = () => {
+    setUnreadCount(0);
+    setFirstUnreadMessageId(null);
+  }
   const handleBotMessage = (data) => {
     clearResponseTimeout();
     dispatch(hideLoader());
@@ -698,7 +725,9 @@ export const ChatPage = ({ route }) => {
             historyLoading={historyLoading}
             hasMore={hasMore}
             handleScrollEnd={onMomentumScrollEnd}
-
+            unreadCount={unreadCount}
+            firstUnreadMessageId={firstUnreadMessageId}
+            removeUnreadMessage={handleRemoveUnreadMessage}
           />
         )}
       </View>
@@ -741,7 +770,8 @@ export const ChatPage = ({ route }) => {
         scrollToDown={scrollToDown}
         inactivityTimer={inactivityTimer}
         setInactivityTimer={setInactivityTimer}
-
+        setUnreadCount={setUnreadCount}
+        setFirstUnreadMessageId={setFirstUnreadMessageId}
 
         cleanupWebSocket={cleanupWebSocket}
         startResponseTimeout={startResponseTimeout}
@@ -749,6 +779,7 @@ export const ChatPage = ({ route }) => {
         keyboardHeight={keyboardHeight}
         setKeyboardHeight={setKeyboardHeight}
         token={token}
+        removeUnreadMessage={handleRemoveUnreadMessage}
       />
       {/* </KeyboardAvoidingView>
       </TouchableWithoutFeedback> */}
@@ -793,6 +824,7 @@ ChatPage.propTypes = {
       cogToken: PropTypes.string,
       userInfo: PropTypes.object,
       platform: PropTypes.string,
+      env: PropTypes.string,
     }),
   }),
 };
