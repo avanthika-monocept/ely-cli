@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from 'react';
+import React, { useEffect, useRef } from "react";
 import {
   LogBox,
   StatusBar,
@@ -9,74 +9,26 @@ import {
   Platform,
   KeyboardAvoidingView,
   View,
-} from 'react-native';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import AppNavigator from './src/navigation/appNavigator';
-// import {loadFonts} from './src/config/loadFonts';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+  
+} from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import AppNavigator from "./src/navigation/appNavigator";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function App(props) {
-  // LogBox.ignoreAllLogs(true);
+  LogBox.ignoreAllLogs(true);
   const keyboardOffset = useRef(new Animated.Value(0)).current;
   const insets = useSafeAreaInsets();
-
-  useEffect(() => {
-    // async function prepare() {
-    //   try {
-    //     await loadFonts();
-    //   } catch (e) {
-    //     console.warn(e);
-    //   }
-    // }
-    // prepare();
-
-    if (Platform.OS === 'android') {
-      const onKeyboardShow = () => {
-        Animated.timing(keyboardOffset, {
-          toValue: -22,
-          duration: 250,
-          easing: Easing.out(Easing.ease),
-          useNativeDriver: true,
-        }).start();
-      };
-
-      const onKeyboardHide = () => {
-        Animated.timing(keyboardOffset, {
-          toValue: 0,
-          duration: 250,
-          easing: Easing.out(Easing.ease),
-          useNativeDriver: true,
-        }).start();
-      };
-
-      const showSub = Keyboard.addListener('keyboardDidShow', onKeyboardShow);
-      const hideSub = Keyboard.addListener('keyboardDidHide', onKeyboardHide);
-
-      return () => {
-        showSub.remove();
-        hideSub.remove();
-      };
-    }
-  }, []);
-
-  return (
+return (
     <GestureHandlerRootView style={styles.container}>
-      {Platform.OS === 'ios' ? (
-        <KeyboardAvoidingView
+      <KeyboardAvoidingView
           style={styles.innerContainer}
-          behavior="padding"
-          keyboardVerticalOffset={insets.top + 25}>
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? insets.top + 25 : 0}
+        >
           <AppNavigator standalone={true} props={props} />
         </KeyboardAvoidingView>
-      ) : (
-        <Animated.View
-          style={[
-            styles.innerContainer,
-            {transform: [{translateY: keyboardOffset}]},
-          ]}>
-          <AppNavigator standalone={true} props={props} />
-        </Animated.View>
-      )}
+     
     </GestureHandlerRootView>
   );
 }
@@ -89,3 +41,4 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
+ 
