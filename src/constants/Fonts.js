@@ -1,9 +1,21 @@
 import { scale } from "react-native-size-matters";
 import { StyleSheet, Dimensions } from "react-native";
 import { RFValue } from "react-native-responsive-fontsize";
-
+import { scaleForTablet } from "../common/tabletUtils";
 
 const standardScreenHeight = Dimensions.get("window").height;
+export const getLineHeight = (
+  fontSize,
+  multiplier = 1.25
+) => {
+  return Math.round(fontSize * multiplier);
+};
+
+export const lineHeights = {
+  tight: (fontSize) => getLineHeight(fontSize, 1.1),
+  normal: (fontSize) => getLineHeight(fontSize, 1.25),
+  relaxed: (fontSize) => getLineHeight(fontSize, 1.4),
+};
 export const fontType = {
   notoBold: "NotoSans-Bold",
   notoExtraBoldItalic: "NotoSans-ExtraBoldItalic",
@@ -27,23 +39,23 @@ export const fontType = {
 };
 
 export const fontSize = {
-  font10: RFValue(10, standardScreenHeight),
-  font12: RFValue(12, standardScreenHeight),
-  font13: RFValue(13, standardScreenHeight),
-  font14: RFValue(14, standardScreenHeight),
-  font16: RFValue(16, standardScreenHeight),
-  font32: RFValue(32, standardScreenHeight),
-  font11: RFValue(11, standardScreenHeight),
-  font40: RFValue(40, standardScreenHeight),
-  font48: RFValue(48, standardScreenHeight),
-  font52: RFValue(52, standardScreenHeight),
-  font62: RFValue(62, standardScreenHeight),
-  font25: RFValue(25, standardScreenHeight),
-  font20: RFValue(20, standardScreenHeight),
-  font22: RFValue(22, standardScreenHeight),
-  font8: RFValue(8, standardScreenHeight),
-  font34: RFValue(34, standardScreenHeight),
-  font18: RFValue(18, standardScreenHeight),
+  font8: scaleForTablet(RFValue(8, standardScreenHeight)),
+  font10: scaleForTablet(RFValue(10, standardScreenHeight)),
+  font11: scaleForTablet(RFValue(11, standardScreenHeight)),
+  font12: scaleForTablet(RFValue(12, standardScreenHeight)),
+  font13: scaleForTablet(RFValue(13, standardScreenHeight)),
+  font14: scaleForTablet(RFValue(14, standardScreenHeight)),
+  font16: scaleForTablet(RFValue(16, standardScreenHeight)),
+  font18: scaleForTablet(RFValue(18, standardScreenHeight)),
+  font20: scaleForTablet(RFValue(20, standardScreenHeight)),
+  font22: scaleForTablet(RFValue(22, standardScreenHeight)),
+  font25: scaleForTablet(RFValue(25, standardScreenHeight)),
+  font32: scaleForTablet(RFValue(32, standardScreenHeight)),
+  font34: scaleForTablet(RFValue(34, standardScreenHeight)),
+  font40: scaleForTablet(RFValue(40, standardScreenHeight)),
+  font48: scaleForTablet(RFValue(48, standardScreenHeight)),
+  font52: scaleForTablet(RFValue(52, standardScreenHeight)),
+  font62: scaleForTablet(RFValue(62, standardScreenHeight)),
 };
 
 export const fontWeight = {
@@ -243,7 +255,7 @@ export const fontStyle = StyleSheet.create({
   bodyLargeBold: {
     fontFamily: fontType.loto,
     fontSize: fontSize.font20,
-    lineHeight: lineHeight.lineHeight28,
+    lineHeight: lineHeights.normal(fontSize.font22),
     letterSpacing: letterSpacing.minus004,
     fontStyle: "normal",
     fontWeight: fontWeight.weight700,

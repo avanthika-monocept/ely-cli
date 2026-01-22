@@ -96,7 +96,9 @@
     "react-redux": "^9.2.0",
     "redux-persist": "^6.0.0",
     "remove-markdown": "^0.6.2",
-    "socket.io-client": "^4.8.1"
+    "socket.io-client": "^4.8.1",
+    "react-native-device-info": "^15.0.1",
+    "react-native-keyboard-controller": "^1.20.6"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

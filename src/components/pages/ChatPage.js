@@ -7,6 +7,7 @@ import {
   Platform,
   AppState,
 
+Animated, Keyboard, Easing
 } from "react-native";
 import { ChatHeader } from "../organims/ChatHeader";
 import ChatFooter from "../organims/ChatFooter";
@@ -15,8 +16,8 @@ import FabFloatingButton from "../atoms/FabFloatingButton";
 import { LandingPage } from "../organims/LandingPage";
 import Clipboard from "@react-native-clipboard/clipboard";
 import { useDispatch, useSelector, shallowEqual } from "react-redux";
-import { addChatHistory, clearMessages, addMessage, updateMessageStatus } from "../../store/reducers/chatSlice";
 import { useNavigation } from "@react-navigation/native";
+import { addChatHistory, clearMessages, addMessage, updateMessageStatus } from "../../store/reducers/chatSlice";
 import { showLoader, hideLoader } from "../../store/reducers/loaderSlice";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getData } from "../../store/actions";
@@ -33,6 +34,11 @@ import { CHAT_MESSAGE_PROXY } from "../../config/apiUrls";
 import { encryptSocketPayload, decryptSocketPayload } from "../../common/cryptoUtils";
 import { useNetInfo } from "@react-native-community/netinfo";
 import ErrorModal from "../atoms/ErrorModal";
+import { useFocusEffect } from "@react-navigation/native";
+import {
+  KeyboardController,
+  AndroidSoftInputModes,
+} from "react-native-keyboard-controller";
 export const ChatPage = ({ route }) => {
   const {
     jwtToken,
@@ -40,7 +46,7 @@ export const ChatPage = ({ route }) => {
     platform,
     env="uat",
   } = route?.params || {};
-  const MAX_TOKEN_RETRIES = 1;
+ const MAX_TOKEN_RETRIES = 1;
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const [copied, setCopied] = useState(false);
@@ -52,6 +58,7 @@ export const ChatPage = ({ route }) => {
   const isAutoScrollingRef = useRef(false);
   const lastBackgroundTimeRef = useRef(null);
   const tokenExpiryRetryCountRef = useRef(0);
+  const footerTranslateY = useRef(new Animated.Value(0)).current;
   const [dropDownType, setDropDownType] = useState("");
   const [messageObjectId, setMessageObjectId] = useState(null);
   const [replyMessageId, setReplyMessageId] = useState(null);
@@ -76,12 +83,46 @@ export const ChatPage = ({ route }) => {
   const [socket, setSocket] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const [firstUnreadMessageId, setFirstUnreadMessageId] = useState(null);
+  const [footerPaddingBottom, setFooterPaddingBottom] = useState(0);
   const messages = useSelector((state) => state.chat.messages, shallowEqual);
   const ws = useRef(null);
   const backgroundColor = reconfigApiResponse?.theme?.backgroundColor || colors.primaryColors.lightSurface;
   const isSharing = useSelector((state) => state.shareLoader.isSharing);
   const netInfo = useNetInfo();
 
+
+
+useEffect(() => {
+  if (Platform.OS !== 'android') return;
+
+  const keyboardDidShow = (e) => {
+    Animated.timing(footerTranslateY, {
+      toValue: -e.endCoordinates.height,
+      duration: 50,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: true,
+    }).start();
+setFooterPaddingBottom(e.endCoordinates.height);
+  };
+
+  const keyboardDidHide = () => {
+    Animated.timing(footerTranslateY, {
+      toValue: 0,
+      duration: 200,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: true,
+    }).start();
+    setFooterPaddingBottom(0);
+  };
+
+  const showSub = Keyboard.addListener('keyboardDidShow', keyboardDidShow);
+  const hideSub = Keyboard.addListener('keyboardDidHide', keyboardDidHide);
+
+  return () => {
+    showSub.remove();
+    hideSub.remove();
+  };
+}, []);
   useEffect(() => {
     reconfigApiResponseRef.current = reconfigApiResponse;
   }, [reconfigApiResponse]);
@@ -92,6 +133,22 @@ export const ChatPage = ({ route }) => {
     messages.find(msg => msg?.messageId === messageObjectId),
     [messages, messageObjectId]
   );
+  useFocusEffect(
+    React.useCallback(() => {
+      // When Ely screen is focused
+      KeyboardController.setInputMode(
+        AndroidSoftInputModes.SOFT_INPUT_ADJUST_RESIZE
+      );
+ 
+      return () => {
+        // When leaving Ely screen
+        KeyboardController.setInputMode(
+          AndroidSoftInputModes.SOFT_INPUT_ADJUST_PAN
+        );
+      };
+    }, []));
+  
+
   const startResponseTimeout = useCallback(() => {
     if (responseTimeoutRef.current) {
       clearTimeout(responseTimeoutRef.current);
@@ -643,25 +700,12 @@ export const ChatPage = ({ route }) => {
   }, [netInfo?.isConnected]);
 
   return (
+    
     <SafeAreaView
-      style={[
-        styles.container,
-        { marginTop: Platform.OS === "android" ? keyboardHeight / 10 : 0 },
-      ]}
+      style={styles.container}
     >
       <StatusBar backgroundColor={colors.primaryColors.darkBlue} />
-      {Platform.OS === "android" && keyboardHeight > 100 && (
-        <View
-          style={{
-            position: "absolute",
-            zIndex: 1,
-            top: -36,
-            backgroundColor: colors.primaryColors.darkBlue,
-            height: 40,
-            width: "100%",
-          }}
-        />
-      )}
+   
       <ChatHeader
         reconfigApiResponse={reconfigApiResponse}
         setnavigationPage={setnavigationPage}
@@ -673,7 +717,7 @@ export const ChatPage = ({ route }) => {
         </View>
       )}
 
-      <View style={styles.content} accessible={false}>
+      <View style={[styles.content, { paddingBottom: Platform.OS === 'android' ? footerPaddingBottom : 0 }]} accessible={false}>
 
         {modalData.visible &&
           <View style={styles.modalContainer}>
@@ -746,6 +790,15 @@ export const ChatPage = ({ route }) => {
           </View>
         </KeyboardAvoidingView>
       )}
+      { Platform.OS === 'android' ? 
+      <Animated.View 
+      style={[
+        styles.footerContainer,
+        {
+          transform: [{ translateY: footerTranslateY }],
+          }
+      ]}
+    >
       <ChatFooter
         copied={copied}
         setCopied={setCopied}
@@ -780,9 +833,42 @@ export const ChatPage = ({ route }) => {
         setKeyboardHeight={setKeyboardHeight}
         token={token}
         removeUnreadMessage={handleRemoveUnreadMessage}
-      />
-      {/* </KeyboardAvoidingView>
-      </TouchableWithoutFeedback> */}
+      /></Animated.View>
+      : 
+       <ChatFooter
+        copied={copied}
+        setCopied={setCopied}
+        setDropDownType={setDropDownType}
+        dropDownType={dropDownType}
+        messageObjectId={messageObjectId}
+        setnavigationPage={setnavigationPage}
+        navigationPage={navigationPage}
+        setMessageObjectId={setMessageObjectId}
+        setReplyMessageId={setReplyMessageId}
+        replyMessageId={replyMessageId}
+        socket={socket}
+        setReply={setReply}
+        replyIndex={replyIndex}
+        reply={reply}
+        handleReplyClose={handleReplyClose}
+        handleReplyMessage={handleReplyMessage}
+        reconfigApiResponse={reconfigApiResponse}
+        messages={messages}
+        copyToClipboard={copyToClipboard}
+        env={env}
+        scrollToDown={scrollToDown}
+        inactivityTimer={inactivityTimer}
+        setInactivityTimer={setInactivityTimer}
+        setUnreadCount={setUnreadCount}
+        setFirstUnreadMessageId={setFirstUnreadMessageId}
+        cleanupWebSocket={cleanupWebSocket}
+        startResponseTimeout={startResponseTimeout}
+        clearResponseTimeout={clearResponseTimeout}
+        keyboardHeight={keyboardHeight}
+        setKeyboardHeight={setKeyboardHeight}
+        token={token}
+        removeUnreadMessage={handleRemoveUnreadMessage}
+      />}
     </SafeAreaView>
   );
 };

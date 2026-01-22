@@ -1,12 +1,14 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Image } from "react-native";
 import { borderRadius, flex, size, spacing } from "../../constants/Dimensions";
 import colors from "../../constants/Colors";
 import { fontStyle } from "../../constants/Fonts";
 import PropTypes from "prop-types";
-import ElyUpdatedLogo from "../../../assets/ElyUpdatedLogo.svg";
 import { useNetInfo } from "@react-native-community/netinfo";
-const Avatar = ({ botName }) => {
+import { isTabletView } from "../../common/tabletUtils";
+import ElyNewIcon from "../../../assets/ElyNewIcon.png";
+const isTablet = isTabletView();
+const Avatar = ({ botName = "ELY"}) => {
   Avatar.propTypes = {
     botName: PropTypes.string,
   };
@@ -16,11 +18,17 @@ const Avatar = ({ botName }) => {
     <View style={styles.avatarContainer}>
       <View style={styles.avatarWrapper}>
         <View style={styles.imageContainer}>
-          <ElyUpdatedLogo
+           <Image
             testID="avatar-logo"
-            width={size.width_32}
-            height={size.height_32}
-            style={styles.avatarImage}
+            source={ElyNewIcon}
+            style={[
+              styles.avatarImage,
+              {
+                width: isTablet ? size.width_32 : size.width_52,
+                height: isTablet ? size.width_32 : size.width_52,
+              },
+            ]}
+            resizeMode="contain"
           />
         </View>
         <View
@@ -45,24 +53,23 @@ const styles = StyleSheet.create({
   avatarWrapper: {
     position: "relative",
     width: size.width_30,
-    height: size.height_30,
+    height: isTablet?  size.height30 : size.height36,
   },
   imageContainer: {
-    flex: flex.one,
-    justifyContent: "center",
+     justifyContent: "center",
     alignItems: "center",
   },
   avatarImage: {
-    marginLeft: size.width_2,
+    marginLeft: isTablet ? size.width_8 : size.width_2,
     alignSelf: "center",
   },
   statusDot: {
     position: "absolute",
-    top: spacing.space_s1,
-    right: spacing.space_s1,
-    width: size.width_8,
-    height: size.height_8,
-    borderRadius: borderRadius.borderRadius4,
+    top: isTablet ? 8 : spacing.space_s2,
+    right: isTablet ? 9 : spacing.space_s1,
+    width: isTablet ? size.width_5 : size.width_8,
+    height: isTablet ? size.width_5 : size.height_8,
+    borderRadius: isTablet ? borderRadius.borderRadius10 : borderRadius.borderRadius4,
   },
   online: {
     backgroundColor: colors.primaryColors.green,

@@ -21,6 +21,7 @@ const LONG_PRESS_THRESHOLD = 500;
 const CHAR_LIMIT = 350;
 
 const MarkdownComponent = ({markdownText, setDropDownType, isBot}) => {
+  // added isbot prop to adjust margin for iOS for CLI
   const dispatch = useDispatch();
   const longPressTimer = useRef(null);
   const isLongPressTriggered = useRef(false);
@@ -163,7 +164,7 @@ const MarkdownComponent = ({markdownText, setDropDownType, isBot}) => {
           ...markdownStyles,
           body: {
             ...markdownStyles.body,
-            marginRight: Platform.OS == 'ios' ? (isBot ? 0 : 20) : 0, // 👈 conditional inline style
+            marginRight: Platform.OS == 'ios' ? (isBot ? 0 : 20) : 0, // 👈 conditional inline style for CLI
           },
         }}
         mergeStyle={true}

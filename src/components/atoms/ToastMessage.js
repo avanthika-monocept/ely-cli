@@ -73,8 +73,8 @@ const ToastMessage = ({ actions, title, message, type }) => {
         style={styles.gradient}
       >
 
-        <View style={{ flex: 1, padding: Platform.OS == 'ios' ? 14 : 0 }}>
-          <View style={styles.rowBetween}>
+        <View style={{ flex: 1, padding: Platform.OS == 'ios' ? 14 : 0 }}> {/* // Added padding for CLI */}
+        <View style={styles.rowBetween}>
             <View style={[styles.iconBox,{ padding: isInfo ? 2 : 6, shadowColor: isInfo ? colors.primaryColors.borderBlue : borderColorError}]}>
               {isInfo ? <Info width={30} height={30} /> :<AlertIcon width={20} height={20} />}
             </View>
@@ -107,8 +107,8 @@ const styles = StyleSheet.create({
   gradient: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: Platform.OS == 'ios' ? 0 : 14,
-    paddingHorizontal: Platform.OS == 'ios' ? 0 : 14,
+    paddingVertical: Platform.OS == 'ios' ? 0 : 14,   // Added padding for CLI
+    paddingHorizontal: Platform.OS == 'ios' ? 0 : 14,  // Added padding for CLI
     borderRadius: 5,
     width: '100%',
   },
@@ -129,10 +129,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primaryColors.white,
     shadowColor: colors.primaryColors.bloodRed,
     shadowOffset: { width: 4, height: 4 },
-    shadowOpacity: Platform.OS == 'ios' ? 0.35 : 1,
+    shadowOpacity: Platform.OS == 'ios' ? 0.35 : 1, // Added changes for CLI
     shadowRadius: 12,
     elevation: 4,
-    marginVertical:Platform.OS == 'ios' ? 0 : 8,
+    marginVertical:Platform.OS == 'ios' ? 0 : 8, // Added changes for CLI
   },
   rowBetween: {
     flexDirection: "row",
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     marginLeft: 8,
-    marginRight: Platform.OS == 'ios' ? 0 : 20,
+    marginRight: Platform.OS == 'ios' ? 0 : 20, // Added changes for CLI
   },
   secondaryBtn: {
     backgroundColor: colors.primaryColors.white,

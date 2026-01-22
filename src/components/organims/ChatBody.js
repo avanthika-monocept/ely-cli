@@ -197,21 +197,49 @@ const formatSeparatorDate = (dateObj) => {
   const yesterday = new Date();
   yesterday.setDate(today.getDate() - 1);
 
+  const startOfToday = new Date(today.setHours(0, 0, 0, 0));
+  const startOfMsgDay = new Date(dateObj.setHours(0, 0, 0, 0));
+
+  const diffInDays =
+    Math.floor(
+      (startOfToday.getTime() - startOfMsgDay.getTime()) /
+      (1000 * 60 * 60 * 24)
+    );
+
   const isSameDay = (d1, d2) =>
     d1.getDate() === d2.getDate() &&
     d1.getMonth() === d2.getMonth() &&
     d1.getFullYear() === d2.getFullYear();
 
-  if (isSameDay(dateObj, today)) return stringConstants.Today;
-  if (isSameDay(dateObj, yesterday)) return stringConstants.Yesterday;
+  // ✅ Today
+  if (isSameDay(startOfMsgDay, startOfToday)) {
+    return stringConstants.Today;
+  }
 
-  const weekday = dateObj.toLocaleDateString("en-US", { weekday: "long" });
-  const day = dateObj.getDate(); // 5
-  const month = dateObj
-    .toLocaleDateString("en-US", { month: "short" })
-    .toLowerCase(); // feb
+  // ✅ Yesterday
+  if (isSameDay(startOfMsgDay, yesterday)) {
+    return stringConstants.Yesterday;
+  }
 
-  return `${weekday}, ${day} ${month}`;
+  // ✅ Within last 7 days
+ if (diffInDays < 7) {
+  const weekday = dateObj.toLocaleDateString("en-US", {
+    weekday: "long",
+  });
+
+  const formattedWeekday =
+    weekday.charAt(0).toUpperCase() + weekday.slice(1).toLowerCase();
+
+  return formattedWeekday;
+}
+
+
+  // ✅ Older than 7 days → Full date
+  const day = dateObj.getDate();
+  const month = dateObj.toLocaleDateString("en-US", { month: "long" });
+  const year = dateObj.getFullYear();
+
+  return `${day} ${month} ${year}`;
 };
  
 
